@@ -8,9 +8,9 @@ import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AuthenticatedUserTest {
+public class AuthenticatedTest {
 
-    private AuthenticatedUser<Claims> uut;
+    private Authenticated<Claims> uut;
 
     static enum Claims {
         FOO_BAR
@@ -20,7 +20,7 @@ public class AuthenticatedUserTest {
     public void setUp() throws Exception {
         final HashMap<Claims, String> claimsStringHashMap = new HashMap<>();
         claimsStringHashMap.put(Claims.FOO_BAR, "<foo_bar>");
-        uut = new AuthenticatedUser<>(123l, "<username>", "<token>", Collections.emptyList(), claimsStringHashMap);
+        uut = new Authenticated<>(123l, "<username>", "<token>", Collections.emptyList(), claimsStringHashMap);
     }
 
     @Test

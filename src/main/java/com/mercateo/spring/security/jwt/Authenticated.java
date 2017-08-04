@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class AuthenticatedUser<E extends Enum<E>> implements UserDetails {
+public class Authenticated<E extends Enum<E>> implements UserDetails {
 
     private final Long id;
     private final String username;
@@ -17,7 +17,7 @@ public class AuthenticatedUser<E extends Enum<E>> implements UserDetails {
     private final Collection<? extends GrantedAuthority> authorities;
     private final Map<E, String> claims;
 
-    public AuthenticatedUser(Long id, String username, String token, Collection<? extends GrantedAuthority> authorities, Map<E, String> claims) {
+    public Authenticated(Long id, String username, String token, Collection<? extends GrantedAuthority> authorities, Map<E, String> claims) {
         this.id = id;
         this.username = username;
         this.token = token;
@@ -77,7 +77,7 @@ public class AuthenticatedUser<E extends Enum<E>> implements UserDetails {
         return claims.get(key);
     }
 
-    public static <E extends Enum<E>> AuthenticatedUser<E> fromContext() {
-        return (AuthenticatedUser<E>) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public static <E extends Enum<E>> Authenticated<E> fromContext() {
+        return (Authenticated<E>) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }
