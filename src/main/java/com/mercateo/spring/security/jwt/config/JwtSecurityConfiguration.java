@@ -1,9 +1,9 @@
 package com.mercateo.spring.security.jwt.config;
 
 import java.util.Collections;
+import java.util.Optional;
 
-import javax.servlet.http.HttpServletResponse;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,10 +24,13 @@ import com.mercateo.spring.security.jwt.JwtAuthenticationTokenFilter;
 import lombok.AllArgsConstructor;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @AllArgsConstructor
 public class JwtSecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    Optional<JwtSecurityConfig> config;
 
     @Bean
     public JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint() {
@@ -52,36 +55,32 @@ public class JwtSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.csrf().disable();
+
         httpSecurity
-            // we don't need CSRF because our token is invulnerable
-            .csrf()
-            .disable()
-            // All urls must be authenticated (filter for token always fires (/**)
+            .authorizeRequests()
+            .antMatchers("/health")
+            .anonymous()
+            .and()
             .authorizeRequests()
             .anyRequest()
             .authenticated()
             .and()
-            // Call our errorHandler if authentication/authorisation fails
             .exceptionHandling()
             .authenticationEntryPoint(jwtAuthenticationEntryPoint())
             .and()
-            // don't create session
             .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS); // .and()
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         // Custom JWT based security filter
         httpSecurity.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
-
-        // suppress redirect to login page
-        httpSecurity.exceptionHandling().authenticationEntryPoint((request, response, authException) -> {
-            if (authException != null) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().print("Unauthorizated....");
-            }
-        });
 
         // disable page caching
         httpSecurity.headers().cacheControl();
     }
 
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        // web.ignoring().antMatchers("/**");
+    }
 }

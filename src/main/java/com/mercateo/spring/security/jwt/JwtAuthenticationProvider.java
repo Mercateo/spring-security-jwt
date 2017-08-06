@@ -17,6 +17,7 @@ import com.mercateo.spring.security.jwt.exception.MissingClaimException;
 import javaslang.collection.HashMap;
 import javaslang.collection.List;
 import javaslang.collection.Map;
+import javaslang.control.Option;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -44,14 +45,20 @@ public class JwtAuthenticationProvider<E extends Enum<E>> extends AbstractUserDe
     @Override
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
             throws AuthenticationException {
-        JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) authentication;
-        String tokenString = jwtAuthenticationToken.getToken();
+        return Option
+            .of((JwtAuthenticationToken) authentication)
+            .map(JwtAuthenticationToken::getToken)
+            .toTry()
+            .mapTry(JWT::decode)
+            .onFailure(e -> {
+                log.warn("invalid token");
+                throw new InvalidTokenException("JWT token is not valid", e);
+            })
+            .map(this::mapToken)
+            .get();
+    }
 
-        final DecodedJWT token = JWT.decode(tokenString);
-
-        if (false)
-            throw new InvalidTokenException("JWT token is not valid");
-
+    private UserDetails mapToken(DecodedJWT token) {
         List<GrantedAuthority> authorityList = List.empty();
 
         final String subject = token.getSubject();
@@ -65,7 +72,7 @@ public class JwtAuthenticationProvider<E extends Enum<E>> extends AbstractUserDe
             .mapValues(String::toLowerCase)
             .mapValues(name -> determineClaim(token, name));
 
-        return new Authenticated<E>(id, "subject", tokenString, authorityList.toJavaList(), requiredClaims
+        return new Authenticated<E>(id, "subject", token.getToken(), authorityList.toJavaList(), requiredClaims
             .toJavaMap());
     }
 
@@ -74,7 +81,7 @@ public class JwtAuthenticationProvider<E extends Enum<E>> extends AbstractUserDe
 
         if (claims.containsKey(claimName) && claims.get(claimName).map(claim -> !claim.isNull()).getOrElse(false)) {
             return claims.get(claimName).get().asString();
-        } else if (claims.containsKey(namespacePrefix + claimName) &&   claims
+        } else if (claims.containsKey(namespacePrefix + claimName) && claims
             .get(namespacePrefix + claimName)
             .map(claim -> !claim.isNull())
             .getOrElse(false)) {
