@@ -24,7 +24,7 @@ import com.mercateo.spring.security.jwt.JwtAuthenticationTokenFilter;
 import lombok.AllArgsConstructor;
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @AllArgsConstructor
 public class JwtSecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -77,10 +77,5 @@ public class JwtSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         // disable page caching
         httpSecurity.headers().cacheControl();
-    }
-
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        // web.ignoring().antMatchers("/**");
     }
 }
