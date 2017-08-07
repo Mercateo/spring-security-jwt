@@ -15,49 +15,40 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.auth0.jwt.JWTVerifier;
 import com.mercateo.spring.security.jwt.JWTAuthenticationEntryPoint;
 import com.mercateo.spring.security.jwt.JWTAuthenticationProvider;
 import com.mercateo.spring.security.jwt.JWTAuthenticationSuccessHandler;
 import com.mercateo.spring.security.jwt.JWTAuthenticationTokenFilter;
 import com.mercateo.spring.security.jwt.verifier.JWTKeyset;
 import com.mercateo.spring.security.jwt.verifier.JWTVerifierFactory;
+import com.mercateo.spring.security.jwt.verifier.WrappedJWTVerifier;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Slf4j
+@AllArgsConstructor
 public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    final Optional<JWTSecurityConfig> config;
+    private final Optional<JWTSecurityConfig> config;
 
-    Optional<JWTVerifier> jwtVerifier;
-
-    public JWTSecurityConfiguration(Optional<JWTSecurityConfig> config, Optional<JWTKeyset> jwtKeyset,
-            JWTAuthenticationProvider authenticationProvider) {
-        this.config = config;
-        this.jwtKeyset = jwtKeyset;
-        this.authenticationProvider = authenticationProvider;
-    }
+    private final Optional<JWTKeyset> jwtKeyset;
 
     @Bean
     public JWTAuthenticationEntryPoint jwtAuthenticationEntryPoint() {
         return new JWTAuthenticationEntryPoint();
     }
 
-    private final Optional<JWTKeyset> jwtKeyset;
-
     private JWTAuthenticationProvider authenticationProvider;
 
     @Bean
-    JWTVerifier verifier() {
-        jwtVerifier = jwtKeyset
+    WrappedJWTVerifier wrappedVerifier() {
+        return new WrappedJWTVerifier(jwtKeyset
             .map(JWTVerifierFactory::new) //
-            .map(JWTVerifierFactory::create);
-
-        return jwtVerifier.orElse(null);
+            .map(JWTVerifierFactory::create));
     }
 
     private static IllegalStateException map(Throwable cause) {
@@ -71,8 +62,7 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     public JWTAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
-        JWTAuthenticationTokenFilter authenticationTokenFilter = new JWTAuthenticationTokenFilter(Optional.ofNullable(
-                verifier()));
+        JWTAuthenticationTokenFilter authenticationTokenFilter = new JWTAuthenticationTokenFilter(wrappedVerifier());
         authenticationTokenFilter.setAuthenticationManager(authenticationManager());
         authenticationTokenFilter.setAuthenticationSuccessHandler(new JWTAuthenticationSuccessHandler());
         return authenticationTokenFilter;
