@@ -7,16 +7,20 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@AllArgsConstructor
 @Slf4j
 public class WrappedJWTVerifier {
 
     public static final String WRAPPED_TOKEN_KEY = "jwt";
 
     private final Optional<JWTVerifier> verifier;
+
+    public WrappedJWTVerifier(Optional<JWTVerifier> verifier) {
+        this.verifier = verifier;
+
+        log.info("use verifier {}", verifier);
+    }
 
     public void verifyIfPresent(String tokenString) {
         if (!verifier.isPresent()) {
@@ -41,7 +45,7 @@ public class WrappedJWTVerifier {
 
     private void verifyIfPresent(DecodedJWT token) {
         verifier.ifPresent(verifier -> {
-            log.info("verify token");
+            log.debug("verify token with id {}", token.getId());
             verifier.verify(token.getToken());
         });
     }
