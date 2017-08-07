@@ -5,10 +5,10 @@ import java.util.List;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface JwtSecurityConfig {
+public interface JWTSecurityConfig {
     List<String> anonymousPaths();
 
-    static ImmutableJwtSecurityConfig.Builder builder() {
-        return ImmutableJwtSecurityConfig.builder();
+    static ImmutableJWTSecurityConfig.Builder builder() {
+        return ImmutableJWTSecurityConfig.builder();
     }
 }

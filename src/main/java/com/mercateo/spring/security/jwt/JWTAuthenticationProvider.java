@@ -21,20 +21,20 @@ import javaslang.control.Option;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class JwtAuthenticationProvider<E extends Enum<E>> extends AbstractUserDetailsAuthenticationProvider {
+public class JWTAuthenticationProvider<E extends Enum<E>> extends AbstractUserDetailsAuthenticationProvider {
 
     private final Class<E> enumClass;
 
     private final String namespacePrefix;
 
-    public JwtAuthenticationProvider(Class<E> enumClass, String namespacePrefix) {
+    public JWTAuthenticationProvider(Class<E> enumClass, String namespacePrefix) {
         this.enumClass = enumClass;
         this.namespacePrefix = namespacePrefix;
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return (JwtAuthenticationToken.class.isAssignableFrom(authentication));
+        return (JWTAuthenticationToken.class.isAssignableFrom(authentication));
     }
 
     @Override
@@ -46,8 +46,8 @@ public class JwtAuthenticationProvider<E extends Enum<E>> extends AbstractUserDe
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
             throws AuthenticationException {
         return Option
-            .of((JwtAuthenticationToken) authentication)
-            .map(JwtAuthenticationToken::getToken)
+            .of((JWTAuthenticationToken) authentication)
+            .map(JWTAuthenticationToken::getToken)
             .toTry()
             .mapTry(JWT::decode)
             .onFailure(e -> {

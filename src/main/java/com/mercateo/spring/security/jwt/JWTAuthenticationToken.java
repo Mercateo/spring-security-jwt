@@ -2,12 +2,12 @@ package com.mercateo.spring.security.jwt;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
-public class JwtAuthenticationToken extends UsernamePasswordAuthenticationToken {
+public class JWTAuthenticationToken extends UsernamePasswordAuthenticationToken {
 
 
     private String token;
 
-    public JwtAuthenticationToken(String token) {
+    public JWTAuthenticationToken(String token) {
         super(null, null);
         this.token = token;
     }

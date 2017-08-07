@@ -3,8 +3,6 @@ package com.mercateo.spring.security.jwt.config;
 import java.util.Collections;
 import java.util.Optional;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,29 +15,54 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.mercateo.spring.security.jwt.JwtAuthenticationEntryPoint;
-import com.mercateo.spring.security.jwt.JwtAuthenticationProvider;
-import com.mercateo.spring.security.jwt.JwtAuthenticationSuccessHandler;
-import com.mercateo.spring.security.jwt.JwtAuthenticationTokenFilter;
+import com.auth0.jwt.JWTVerifier;
+import com.mercateo.spring.security.jwt.JWTAuthenticationEntryPoint;
+import com.mercateo.spring.security.jwt.JWTAuthenticationProvider;
+import com.mercateo.spring.security.jwt.JWTAuthenticationSuccessHandler;
+import com.mercateo.spring.security.jwt.JWTAuthenticationTokenFilter;
+import com.mercateo.spring.security.jwt.verifier.JWTKeyset;
+import com.mercateo.spring.security.jwt.verifier.JWTVerifierFactory;
 
-import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@AllArgsConstructor
 @Slf4j
-public class JwtSecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    Optional<JwtSecurityConfig> config;
+    final Optional<JWTSecurityConfig> config;
 
-    @Bean
-    public JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint() {
-        return new JwtAuthenticationEntryPoint();
+    Optional<JWTVerifier> jwtVerifier;
+
+    public JWTSecurityConfiguration(Optional<JWTSecurityConfig> config, Optional<JWTKeyset> jwtKeyset,
+            JWTAuthenticationProvider authenticationProvider) {
+        this.config = config;
+        this.jwtKeyset = jwtKeyset;
+        this.authenticationProvider = authenticationProvider;
     }
 
-    private JwtAuthenticationProvider authenticationProvider;
+    @Bean
+    public JWTAuthenticationEntryPoint jwtAuthenticationEntryPoint() {
+        return new JWTAuthenticationEntryPoint();
+    }
+
+    private final Optional<JWTKeyset> jwtKeyset;
+
+    private JWTAuthenticationProvider authenticationProvider;
+
+    @Bean
+    JWTVerifier verifier() {
+        jwtVerifier = jwtKeyset
+            .map(JWTVerifierFactory::new) //
+            .map(JWTVerifierFactory::create);
+
+        return jwtVerifier.orElse(null);
+    }
+
+    private static IllegalStateException map(Throwable cause) {
+        return new IllegalStateException(cause);
+    }
 
     @Bean
     @Override
@@ -47,10 +70,11 @@ public class JwtSecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new ProviderManager(Collections.singletonList(authenticationProvider));
     }
 
-    public JwtAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
-        JwtAuthenticationTokenFilter authenticationTokenFilter = new JwtAuthenticationTokenFilter();
+    public JWTAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
+        JWTAuthenticationTokenFilter authenticationTokenFilter = new JWTAuthenticationTokenFilter(Optional.ofNullable(
+                verifier()));
         authenticationTokenFilter.setAuthenticationManager(authenticationManager());
-        authenticationTokenFilter.setAuthenticationSuccessHandler(new JwtAuthenticationSuccessHandler());
+        authenticationTokenFilter.setAuthenticationSuccessHandler(new JWTAuthenticationSuccessHandler());
         return authenticationTokenFilter;
     }
 
@@ -97,10 +121,8 @@ public class JwtSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     private String[] getUnauthenticatedPaths() {
-        return config
-                .map(JwtSecurityConfig::anonymousPaths)
-                .map(list -> list.stream().toArray(String[]::new))
-                .orElse(new String[0]);
+        return config.map(JWTSecurityConfig::anonymousPaths).map(list -> list.stream().toArray(String[]::new)).orElse(
+                new String[0]);
     }
 
 }

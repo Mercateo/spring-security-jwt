@@ -1,28 +1,34 @@
 package com.mercateo.spring.security.jwt;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.Optional;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.mercateo.spring.security.jwt.exception.InvalidTokenException;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.Claim;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+
+import com.auth0.jwt.JWTVerifier;
+import com.mercateo.spring.security.jwt.exception.InvalidTokenException;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessingFilter {
+public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessingFilter {
 
     private final static String TOKEN_HEADER = "authorization";
 
-    public JwtAuthenticationTokenFilter() {
+    private final Optional<JWTVerifier> jwtVerifier;
+
+    public JWTAuthenticationTokenFilter(Optional<JWTVerifier> jwtVerifier) {
         super("/**");
+        this.jwtVerifier = jwtVerifier;
     }
 
     @Override
@@ -35,8 +41,36 @@ public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessi
             throw new InvalidTokenException("no token", new RuntimeException());
         } else {
             String authToken = header.split("\\s+")[1];
-            return getAuthenticationManager().authenticate(new JwtAuthenticationToken(authToken));
+
+            verify(authToken);
+
+            return getAuthenticationManager().authenticate(new JWTAuthenticationToken(authToken));
         }
+    }
+
+    private void verify(String tokenString) {
+
+        DecodedJWT token = JWT.decode(tokenString);
+
+        while (true) {
+            if (token.getAlgorithm() != null) {
+                verify(token);
+            }
+
+            final Claim wrappedTokenClaim = token.getClaim("jwt");
+            if (wrappedTokenClaim.isNull()) {
+                break;
+            } else {
+                token = JWT.decode(wrappedTokenClaim.asString());
+            }
+        }
+    }
+
+    private void verify(DecodedJWT token) {
+        jwtVerifier.ifPresent(verifier -> {
+            log.info("verify token");
+            verifier.verify(token.getToken());
+        });
     }
 
     @Override
