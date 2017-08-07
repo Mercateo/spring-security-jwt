@@ -25,7 +25,7 @@ import com.mercateo.spring.security.jwt.JwtAuthenticationTokenFilter;
 import lombok.AllArgsConstructor;
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @AllArgsConstructor
 @Slf4j
@@ -91,6 +91,11 @@ public class JwtSecurityConfiguration extends WebSecurityConfigurerAdapter {
             .cacheControl();
     }
 
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers(getUnauthenticatedPaths());
+    }
+
     private String[] getUnauthenticatedPaths() {
         return config
                 .map(JwtSecurityConfig::anonymousPaths)
@@ -98,8 +103,4 @@ public class JwtSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .orElse(new String[0]);
     }
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers(getUnauthenticatedPaths());
-    }
 }
