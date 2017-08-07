@@ -19,7 +19,6 @@ import com.mercateo.spring.security.jwt.JWTAuthenticationEntryPoint;
 import com.mercateo.spring.security.jwt.JWTAuthenticationProvider;
 import com.mercateo.spring.security.jwt.JWTAuthenticationSuccessHandler;
 import com.mercateo.spring.security.jwt.JWTAuthenticationTokenFilter;
-import com.mercateo.spring.security.jwt.verifier.JWTKeyset;
 import com.mercateo.spring.security.jwt.verifier.JWTVerifierFactory;
 import com.mercateo.spring.security.jwt.verifier.WrappedJWTVerifier;
 
@@ -35,8 +34,6 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final Optional<JWTSecurityConfig> config;
 
-    private final Optional<JWTKeyset> jwtKeyset;
-
     @Bean
     public JWTAuthenticationEntryPoint jwtAuthenticationEntryPoint() {
         return new JWTAuthenticationEntryPoint();
@@ -46,7 +43,8 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     WrappedJWTVerifier wrappedVerifier() {
-        return new WrappedJWTVerifier(jwtKeyset
+        return new WrappedJWTVerifier(config
+            .flatMap(JWTSecurityConfig::jwtKeyset)
             .map(JWTVerifierFactory::new) //
             .map(JWTVerifierFactory::create));
     }
