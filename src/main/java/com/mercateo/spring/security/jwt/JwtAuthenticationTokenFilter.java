@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.mercateo.spring.security.jwt.exception.InvalidTokenException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,7 +32,7 @@ public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessi
         if (header == null || !header.startsWith("Bearer ")) {
             final String pathInfo = request.getPathInfo();
             log.warn("no JWT token found {}{}", request.getServletPath(), pathInfo != null ? pathInfo : "");
-            return null;
+            throw new InvalidTokenException("no token", new RuntimeException());
         } else {
             String authToken = header.split("\\s+")[1];
             return getAuthenticationManager().authenticate(new JwtAuthenticationToken(authToken));

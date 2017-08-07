@@ -3,6 +3,7 @@ package com.mercateo.spring.security.jwt.config;
 import java.util.Collections;
 import java.util.Optional;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,9 +25,10 @@ import com.mercateo.spring.security.jwt.JwtAuthenticationTokenFilter;
 import lombok.AllArgsConstructor;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @AllArgsConstructor
+@Slf4j
 public class JwtSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -45,7 +47,6 @@ public class JwtSecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new ProviderManager(Collections.singletonList(authenticationProvider));
     }
 
-    @Bean
     public JwtAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
         JwtAuthenticationTokenFilter authenticationTokenFilter = new JwtAuthenticationTokenFilter();
         authenticationTokenFilter.setAuthenticationManager(authenticationManager());
@@ -55,13 +56,22 @@ public class JwtSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf().disable();
 
+        final String[] unauthenticatedPaths = getUnauthenticatedPaths();
+
+        log.info("with unauthenticated paths: {}", unauthenticatedPaths);
         httpSecurity
+            // disable csrf
+            .csrf()
+            .disable()
+
+            // allow
             .authorizeRequests()
-            .antMatchers("/health")
-            .anonymous()
+            .antMatchers(unauthenticatedPaths)
+            .permitAll()
             .and()
+
+            // enable authorization
             .authorizeRequests()
             .anyRequest()
             .authenticated()
@@ -70,12 +80,26 @@ public class JwtSecurityConfiguration extends WebSecurityConfigurerAdapter {
             .authenticationEntryPoint(jwtAuthenticationEntryPoint())
             .and()
             .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
-        // Custom JWT based security filter
-        httpSecurity.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
+            // Custom JWT based security filter
+            .and()
+            .addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class)
 
-        // disable page caching
-        httpSecurity.headers().cacheControl();
+            // disable page caching
+            .headers()
+            .cacheControl();
+    }
+
+    private String[] getUnauthenticatedPaths() {
+        return config
+                .map(JwtSecurityConfig::anonymousPaths)
+                .map(list -> list.stream().toArray(String[]::new))
+                .orElse(new String[0]);
+    }
+
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers(getUnauthenticatedPaths());
     }
 }
