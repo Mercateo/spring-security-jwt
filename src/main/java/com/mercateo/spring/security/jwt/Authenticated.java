@@ -1,23 +1,31 @@
 package com.mercateo.spring.security.jwt;
 
 import java.util.Collection;
-import java.util.Map;
 
+import io.vavr.collection.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class Authenticated<E extends Enum<E>> implements UserDetails {
+import io.vavr.collection.Map;
+import io.vavr.control.Option;
+
+public class Authenticated implements UserDetails {
 
     private final Long id;
-    private final String username;
-    private final String token;
-    private final Collection<? extends GrantedAuthority> authorities;
-    private final Map<E, String> claims;
 
-    public Authenticated(Long id, String username, String token, Collection<? extends GrantedAuthority> authorities, Map<E, String> claims) {
+    private final String username;
+
+    private final String token;
+
+    private final List<? extends GrantedAuthority> authorities;
+
+    private final Map<String, String> claims;
+
+    public Authenticated(Long id, String username, String token, List<? extends GrantedAuthority> authorities,
+            Map<String, String> claims) {
         this.id = id;
         this.username = username;
         this.token = token;
@@ -65,7 +73,7 @@ public class Authenticated<E extends Enum<E>> implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        return authorities.toJavaList();
     }
 
     @Override
@@ -73,11 +81,11 @@ public class Authenticated<E extends Enum<E>> implements UserDetails {
         return null;
     }
 
-    public String getClaim(E key) {
+    public Option<String> getClaim(String key) {
         return claims.get(key);
     }
 
-    public static <E extends Enum<E>> Authenticated<E> fromContext() {
-        return (Authenticated<E>) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public static Authenticated fromContext() {
+        return (Authenticated) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

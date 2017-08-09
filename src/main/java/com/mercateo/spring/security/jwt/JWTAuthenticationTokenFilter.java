@@ -38,8 +38,6 @@ public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessi
         } else {
             String authToken = header.split("\\s+")[1];
 
-            jwtVerifier.verifyIfPresent(authToken);
-
             return getAuthenticationManager().authenticate(new JWTAuthenticationToken(authToken));
         }
     }

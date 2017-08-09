@@ -1,10 +1,11 @@
 package com.mercateo.spring.security.jwt.config;
 
-import java.util.List;
-import java.util.Optional;
+import org.immutables.value.Value;
 
 import com.mercateo.spring.security.jwt.verifier.JWTKeyset;
-import org.immutables.value.Value;
+
+import java.util.List;
+import java.util.Optional;
 
 @Value.Immutable
 public interface JWTSecurityConfig {

@@ -4,7 +4,7 @@ import com.auth0.jwk.GuavaCachedJwkProvider;
 import com.auth0.jwk.Jwk;
 import com.auth0.jwk.JwkProvider;
 import com.auth0.jwk.UrlJwkProvider;
-import javaslang.control.Try;
+import io.vavr.control.Try;
 
 public class Auth0JWTKeyset implements JWTKeyset {
 

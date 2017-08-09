@@ -1,30 +1,31 @@
 package com.mercateo.spring.security.jwt.verifier;
 
-import com.mercateo.spring.security.jwt.JWTAuthenticationProvider;
-import com.mercateo.spring.security.jwt.config.ImmutableJWTSecurityConfig;
-import com.mercateo.spring.security.jwt.config.JWTSecurityConfig;
+import static org.mockito.Mockito.mock;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Optional;
-
-import static org.mockito.Mockito.mock;
+import com.mercateo.spring.security.jwt.config.JWTAuthenticationConfig;
+import com.mercateo.spring.security.jwt.config.JWTSecurityConfig;
 
 @Configuration
 public class TestJWTSecurityConfiguration {
 
     @Bean
-    public JWTAuthenticationProvider<TestJWTClaims> jwtAuthenticationProvider() {
-        return new JWTAuthenticationProvider<>(TestJWTClaims.class, "https://unite.eu/");
+    public JWTAuthenticationConfig jwtAuthenticationConfig() {
+        return JWTAuthenticationConfig
+            .builder()
+            .addNamespaces("https://test.org/")
+            .addRequiredClaims("scope", "foo")
+            .build();
     }
 
     @Bean
     public JWTSecurityConfig securityConfig() {
-        return JWTSecurityConfig.builder().addAnonymousPaths("/admin/app_health").build();
-    }
-
-    @Bean
-    public JWTKeyset jwtKeyset() {
-        return mock(JWTKeyset.class);
+        return JWTSecurityConfig
+            .builder()
+            .addAnonymousPaths("/admin/app_health")
+            .jwtKeyset(mock(JWTKeyset.class))
+            .build();
     }
 }

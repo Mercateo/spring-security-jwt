@@ -1,7 +1,5 @@
 package com.mercateo.spring.security.jwt;
 
-import java.util.function.Function;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
@@ -9,28 +7,22 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.Claim;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.mercateo.spring.security.jwt.exception.InvalidTokenException;
-import com.mercateo.spring.security.jwt.exception.MissingClaimException;
+import com.mercateo.spring.security.jwt.result.JWTClaim;
+import com.mercateo.spring.security.jwt.result.JWTClaims;
+import com.mercateo.spring.security.jwt.verifier.WrappedJWTVerifier;
 
-import javaslang.collection.HashMap;
-import javaslang.collection.List;
-import javaslang.collection.Map;
-import javaslang.control.Option;
+import io.vavr.collection.List;
+import io.vavr.collection.Map;
+import io.vavr.collection.Traversable;
+import lombok.AllArgsConstructor;
+import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class JWTAuthenticationProvider<E extends Enum<E>> extends AbstractUserDetailsAuthenticationProvider {
+@AllArgsConstructor
+public class JWTAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
-    private final Class<E> enumClass;
-
-    private final String namespacePrefix;
-
-    public JWTAuthenticationProvider(Class<E> enumClass, String namespacePrefix) {
-        this.enumClass = enumClass;
-        this.namespacePrefix = namespacePrefix;
-    }
+    private final WrappedJWTVerifier wrappedJWTVerifier;
 
     @Override
     public boolean supports(Class<?> authentication) {
@@ -45,50 +37,20 @@ public class JWTAuthenticationProvider<E extends Enum<E>> extends AbstractUserDe
     @Override
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
             throws AuthenticationException {
-        return Option
-            .of((JWTAuthenticationToken) authentication)
-            .map(JWTAuthenticationToken::getToken)
-            .toTry()
-            .mapTry(JWT::decode)
-            .onFailure(e -> {
-                log.warn("invalid token");
-                throw new InvalidTokenException("JWT token is not valid", e);
-            })
-            .map(this::mapToken)
-            .get();
-    }
+        final String tokenString = ((JWTAuthenticationToken) authentication).getToken();
+        final JWTClaims claims = wrappedJWTVerifier.collect(tokenString);
 
-    private UserDetails mapToken(DecodedJWT token) {
+        val token = JWT.decode(tokenString);
+        val subject = token.getSubject();
+        val id = (long) subject.hashCode();
+
         List<GrantedAuthority> authorityList = List.empty();
 
-        final String subject = token.getSubject();
-        final long id = subject.hashCode();
-
-        Map<E, String> requiredClaims = List
-            .of(enumClass.getEnumConstants())
-            .groupBy(Function.identity())
-            .mapValues(List::head)
-            .mapValues(Enum::name)
-            .mapValues(String::toLowerCase)
-            .mapValues(name -> determineClaim(token, name));
-
-        return new Authenticated<E>(id, "subject", token.getToken(), authorityList.toJavaList(), requiredClaims
-            .toJavaMap());
-    }
-
-    private String determineClaim(DecodedJWT token, String claimName) {
-        final Map<String, Claim> claims = HashMap.ofAll(token.getClaims());
-
-        if (claims.containsKey(claimName) && claims.get(claimName).map(claim -> !claim.isNull()).getOrElse(false)) {
-            return claims.get(claimName).get().asString();
-        } else if (claims.containsKey(namespacePrefix + claimName) && claims
-            .get(namespacePrefix + claimName)
-            .map(claim -> !claim.isNull())
-            .getOrElse(false)) {
-            return claims.get(namespacePrefix + claimName).get().asString();
-        } else {
-            log.warn("claim '{}' missing from JWT token", claimName);
-            throw new MissingClaimException("JWT token does not contain required claim '" + claimName + "'");
-        }
+        final Map<String, String> claimsMap = claims
+            .claims()
+            .groupBy(JWTClaim::name)
+            .mapValues(Traversable::head)
+            .mapValues(JWTClaim::value);
+        return new Authenticated(id, "subject", tokenString, authorityList, claimsMap);
     }
 }

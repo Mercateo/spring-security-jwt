@@ -3,13 +3,8 @@ package com.mercateo.spring.security.jwt.verifier;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 
-import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +16,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 
-import javaslang.control.Try;
+import io.vavr.control.Try;
 import lombok.val;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -44,16 +39,9 @@ public class JWTVerifierTest {
 
     @Before
     public void setUp() throws Exception {
-        final RSAPrivateKey privateKey = (RSAPrivateKey) PemUtils.readPrivateKey(getClass().getResourceAsStream(
-                "rsa-private.pem"), "RSA");
-        final RSAPublicKey publicKey = (RSAPublicKey) PemUtils.readPublicKey(getClass().getResourceAsStream(
-                "rsa-public.pem"), "RSA");
-        algorithm = Algorithm.RSA256(publicKey, privateKey);
-
-        final HashMap<String, Object> additionalValues = new HashMap<>();
-        additionalValues.put("n", Base64.encodeBase64String(publicKey.getModulus().toByteArray()));
-        additionalValues.put("e", Base64.encodeBase64String(publicKey.getPublicExponent().toByteArray()));
-        Jwk jwk = new Jwk(keyId, "RSA", "RSA256", null, null, null, Collections.emptyList(), null, additionalValues);
+        final JWKProvider jwkProvider = new JWKProvider();
+        final Jwk jwk = jwkProvider.create(keyId);
+        algorithm = jwkProvider.getAlgorithm();
         when(jwks.getKeysetForId(keyId)).thenReturn(Try.success(jwk));
         assertThat(jwks.getKeysetForId(keyId)).isNotNull();
 

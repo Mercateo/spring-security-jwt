@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.auth0.jwt.JWTVerifier;
 import com.mercateo.spring.security.jwt.JWTAuthenticationEntryPoint;
 import com.mercateo.spring.security.jwt.JWTAuthenticationProvider;
 import com.mercateo.spring.security.jwt.JWTAuthenticationSuccessHandler;
@@ -34,19 +35,19 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final Optional<JWTSecurityConfig> config;
 
+    private final JWTAuthenticationConfig jwtAuthenticationConfig;
+
     @Bean
     public JWTAuthenticationEntryPoint jwtAuthenticationEntryPoint() {
         return new JWTAuthenticationEntryPoint();
     }
 
-    private JWTAuthenticationProvider authenticationProvider;
-
     @Bean
     WrappedJWTVerifier wrappedVerifier() {
-        return new WrappedJWTVerifier(config
-            .flatMap(JWTSecurityConfig::jwtKeyset)
-            .map(JWTVerifierFactory::new) //
+        final Optional<JWTVerifier> jwtVerifier = config.map(JWTSecurityConfig::jwtKeyset).flatMap(jwks -> jwks
+            .map(JWTVerifierFactory::new)
             .map(JWTVerifierFactory::create));
+        return new WrappedJWTVerifier(jwtAuthenticationConfig, jwtVerifier);
     }
 
     private static IllegalStateException map(Throwable cause) {
@@ -56,7 +57,7 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     @Override
     public AuthenticationManager authenticationManager() throws Exception {
-        return new ProviderManager(Collections.singletonList(authenticationProvider));
+        return new ProviderManager(Collections.singletonList(jwtAuthenticationProvider(wrappedVerifier())));
     }
 
     public JWTAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
@@ -66,12 +67,18 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
         return authenticationTokenFilter;
     }
 
+    @Bean
+    public JWTAuthenticationProvider jwtAuthenticationProvider(WrappedJWTVerifier wrappedJWTVerifier) {
+        return new JWTAuthenticationProvider(wrappedJWTVerifier);
+    }
+
     @Override
     public void configure(HttpSecurity httpSecurity) throws Exception {
 
         final String[] unauthenticatedPaths = getUnauthenticatedPaths();
 
-        log.info("with unauthenticated paths: {}", unauthenticatedPaths);
+        log.info("with unauthenticated paths: [{}]", String.join(", ", unauthenticatedPaths));
+
         httpSecurity
             // disable csrf
             .csrf()

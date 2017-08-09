@@ -1,0 +1,82 @@
+{
+  "_schema": {
+    "links": [
+      {
+        "href": "https://optimus.secondmoldau.services/tenant/api/",
+        "rel": "self",
+        "mediaType": "application/json",
+        "method": "GET"
+      },
+      {
+        "href": "https://optimus.secondmoldau.services/tenant/api/companies",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "address": {
+              "type": "object",
+              "properties": {
+                "country": {
+                  "type": "string",
+                  "enum": [
+                    "DE",
+                    "GB",
+                    "FR"
+                  ]
+                },
+                "line1": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "line2": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "line3": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "line4": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "locality": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "postcode": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "region": {
+                  "type": "string",
+                  "maxLength": 255
+                }
+              },
+              "required": [
+                "country",
+                "line1",
+                "locality"
+              ]
+            },
+            "name": {
+              "type": "string",
+              "maxLength": 255
+            },
+            "vatId": {
+              "type": "string",
+              "maxLength": 255
+            }
+          },
+          "required": [
+            "address",
+            "name",
+            "vatId"
+          ]
+        },
+        "rel": "create-company",
+        "mediaType": "application/json",
+        "method": "POST"
+      }
+    ]
+  }
+}
