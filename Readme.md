@@ -30,6 +30,8 @@ Access the principal object to get claims from the token:
 ```
         final Authenticated authenticated = Authenticated.fromContext();
 
-        log.info("authenticated foo {} with scopes '{}'", authenticated.getClaim("foo"), authenticated.getClaim("scope"));
+        log.info("authenticated foo {} with scopes '{}'",
+              authenticated.getClaim("foo"),
+              authenticated.getClaim("scope"));
 ```
 
