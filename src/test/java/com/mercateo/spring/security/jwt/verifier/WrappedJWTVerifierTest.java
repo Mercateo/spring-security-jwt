@@ -2,10 +2,14 @@ package com.mercateo.spring.security.jwt.verifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.intThat;
 import static org.mockito.Mockito.when;
 
+import java.util.Date;
 import java.util.Optional;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.mercateo.spring.security.jwt.exception.InvalidTokenException;
 import com.mercateo.spring.security.jwt.exception.MissingClaimException;
 import org.junit.Before;
 import org.junit.Test;
@@ -152,5 +156,24 @@ public class WrappedJWTVerifierTest {
         assertThatThrownBy(() -> uut.collect(tokenString)) //
                 .isInstanceOf(MissingClaimException.class)
                 .hasMessage("missing required claim(s): foo");
+    }
+
+
+    @Test
+    public void shouldFailWithExpiredToken() throws Exception {
+        final String tokenString = JWT
+                .create()
+                .withIssuer("<issuer>")
+                .withKeyId(KEY_ID)
+                .withClaim("scope", "test")
+                .withClaim("https://test.org/foo", "<foo>")
+                .withExpiresAt(new Date(System.currentTimeMillis() - 10000))
+                .sign(algorithm);
+        when(jwks.getKeysetForId(KEY_ID)).thenReturn(Try.success(jwk));
+
+        assertThatThrownBy(() -> uut.collect(tokenString))
+                .isInstanceOf(InvalidTokenException.class)
+                .hasMessage("could not verify token")
+                .hasCauseInstanceOf(TokenExpiredException.class);
     }
 }

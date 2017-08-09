@@ -7,6 +7,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mercateo.spring.security.jwt.config.JWTSecurityConfig;
+import com.mercateo.spring.security.jwt.exception.InvalidTokenException;
 import com.mercateo.spring.security.jwt.exception.MissingClaimException;
 import com.mercateo.spring.security.jwt.exception.MissingSignatureException;
 import com.mercateo.spring.security.jwt.result.JWTClaim;
@@ -49,7 +50,9 @@ public class WrappedJWTVerifier {
         while (!stack.empty()) {
             DecodedJWT token = JWT.decode(stack.pop());
 
-            val verified = verifyToken(token);
+            val verified = verifyToken(token).onFailure(
+                   e -> {throw new InvalidTokenException("could not verify token", e);}
+            ).get();
 
             if (verified) {
                 verifiedCount++;
@@ -80,13 +83,13 @@ public class WrappedJWTVerifier {
         return JWTClaims.builder().claims(claimSet).verifiedCount(verifiedCount).token(JWT.decode(tokenString)).build();
     }
 
-    private boolean verifyToken(DecodedJWT token) {
+    private Try<Boolean> verifyToken(DecodedJWT token) {
         return verifier
             .map(verifier -> Try
                 .of(() -> verifier.verify(token.getToken()))
                 .onFailure(e -> log.info("failed verification", e))
-                .isSuccess())
-            .getOrElse(false);
+                .map(ignore -> true))
+            .getOrElse(Try.success(false));
     }
 
     private List<JWTClaim> extractClaims(DecodedJWT token, Boolean verified, int i) {
