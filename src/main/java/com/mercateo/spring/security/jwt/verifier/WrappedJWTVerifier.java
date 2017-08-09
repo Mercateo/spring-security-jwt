@@ -50,9 +50,9 @@ public class WrappedJWTVerifier {
         while (!stack.empty()) {
             DecodedJWT token = JWT.decode(stack.pop());
 
-            val verified = verifyToken(token).onFailure(
-                   e -> {throw new InvalidTokenException("could not verify token", e);}
-            ).get();
+            val verified = verifyToken(token).onFailure(e -> {
+                throw new InvalidTokenException("could not verify token", e);
+            }).get();
 
             if (verified) {
                 verifiedCount++;
@@ -84,12 +84,16 @@ public class WrappedJWTVerifier {
     }
 
     private Try<Boolean> verifyToken(DecodedJWT token) {
-        return verifier
-            .map(verifier -> Try
-                .of(() -> verifier.verify(token.getToken()))
-                .onFailure(e -> log.info("failed verification", e))
-                .map(ignore -> true))
-            .getOrElse(Try.success(false));
+        final String algorithm = token.getAlgorithm();
+
+        return !"none".equals(algorithm) //
+                ? verifier
+                    .map(verifier -> Try
+                        .of(() -> verifier.verify(token.getToken()))
+                        .onFailure(e -> log.info("failed verification", e))
+                        .map(ignore -> true))
+                    .getOrElse(Try.success(false)) //
+                : Try.success(false);
     }
 
     private List<JWTClaim> extractClaims(DecodedJWT token, Boolean verified, int i) {
