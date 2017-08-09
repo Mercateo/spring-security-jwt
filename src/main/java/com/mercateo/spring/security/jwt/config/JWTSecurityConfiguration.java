@@ -33,9 +33,9 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    private final Optional<JWTSecurityConfig> config;
+    private static JWTSecurityConfig defaultConfig = JWTSecurityConfig.builder().build();
 
-    private final JWTAuthenticationConfig jwtAuthenticationConfig;
+    private final Optional<JWTSecurityConfig> config;
 
     @Bean
     public JWTAuthenticationEntryPoint jwtAuthenticationEntryPoint() {
@@ -47,7 +47,11 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
         final Optional<JWTVerifier> jwtVerifier = config.map(JWTSecurityConfig::jwtKeyset).flatMap(jwks -> jwks
             .map(JWTVerifierFactory::new)
             .map(JWTVerifierFactory::create));
-        return new WrappedJWTVerifier(jwtAuthenticationConfig, jwtVerifier);
+        return new WrappedJWTVerifier(jwtSecurityConfig());
+    }
+
+    private JWTSecurityConfig jwtSecurityConfig() {
+        return config.orElse(defaultConfig);
     }
 
     private static IllegalStateException map(Throwable cause) {

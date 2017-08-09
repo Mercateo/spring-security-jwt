@@ -80,6 +80,28 @@ public class WrappedJWTVerifierTest {
     }
 
     @Test
+    public void shouldExtractNamespacedClaim() throws Exception {
+        final String tokenString = JWT
+                .create()
+                .withIssuer("<issuer>")
+                .withKeyId(KEY_ID)
+                .withClaim("scope", "test")
+                .withClaim("https://test.org/foo", "<foo>")
+                .sign(algorithm);
+        when(jwks.getKeysetForId(KEY_ID)).thenReturn(Try.success(jwk));
+
+        final JWTClaims claims = uut.collect(tokenString);
+
+        final Map<String, JWTClaim> claimsByName = claims.claims().groupBy(JWTClaim::name).mapValues(Traversable::head);
+        assertThat(claims.claims()).extracting(JWTClaim::name).containsExactlyInAnyOrder("scope", "foo");
+
+        assertThat(claimsByName.get("scope")).extracting(JWTClaim::value).contains("test");
+        assertThat(claimsByName.get("scope").map(JWTClaim::verified).get()).isTrue();
+        assertThat(claimsByName.get("foo")).extracting(JWTClaim::value).contains("<foo>");
+        assertThat(claimsByName.get("foo").map(JWTClaim::verified).get()).isTrue();
+    }
+
+    @Test
     public void shouldVerifyWrappedSignedToken() throws Exception {
         val wrappedTokenString = JWT
             .create()

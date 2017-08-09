@@ -1,14 +1,12 @@
 package com.mercateo.spring.security.jwt.verifier;
 
-import java.util.Optional;
 import java.util.Stack;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.mercateo.spring.security.jwt.config.JWTAuthenticationConfig;
-import com.mercateo.spring.security.jwt.exception.AmbiguousClaimException;
+import com.mercateo.spring.security.jwt.config.JWTSecurityConfig;
 import com.mercateo.spring.security.jwt.exception.MissingClaimException;
 import com.mercateo.spring.security.jwt.exception.MissingSignatureException;
 import com.mercateo.spring.security.jwt.result.JWTClaim;
@@ -16,9 +14,6 @@ import com.mercateo.spring.security.jwt.result.JWTClaims;
 
 import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
-import io.vavr.collection.Map;
-import io.vavr.collection.Seq;
-import io.vavr.collection.Set;
 import io.vavr.collection.Traversable;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -30,15 +25,15 @@ public class WrappedJWTVerifier {
 
     public static final String WRAPPED_TOKEN_KEY = "jwt";
 
-    private final JWTAuthenticationConfig config;
+    private final JWTSecurityConfig config;
 
     private final Option<JWTVerifier> verifier;
 
-    public WrappedJWTVerifier(JWTAuthenticationConfig config, Optional<JWTVerifier> verifier) {
+    public WrappedJWTVerifier(JWTSecurityConfig config) {
         this.config = config;
-        this.verifier = Option.ofOptional(verifier);
+        this.verifier = Option.ofOptional(config.jwtVerifier());
 
-        verifier.ifPresent(v -> log.info("use JWT verifier {}", v));
+        verifier.forEach(v -> log.info("use JWT verifier {}", v));
     }
 
     public JWTClaims collect(String tokenString) {
@@ -71,7 +66,6 @@ public class WrappedJWTVerifier {
         if (verifiedCount == 0) {
             throw new MissingSignatureException("at least one part of the token should be signed");
         }
-
 
         val claimsByName = claims.groupBy(JWTClaim::name);
 
