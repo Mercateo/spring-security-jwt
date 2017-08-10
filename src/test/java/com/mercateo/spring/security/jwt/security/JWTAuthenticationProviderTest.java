@@ -3,7 +3,7 @@ package com.mercateo.spring.security.jwt.security;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.mercateo.spring.security.jwt.token.extractor.HierarchicalJWTClaimExtractor;
+import com.mercateo.spring.security.jwt.token.extractor.HierarchicalJWTClaimsExtractor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -24,7 +24,7 @@ import lombok.val;
 public class JWTAuthenticationProviderTest {
 
     @Mock
-    private HierarchicalJWTClaimExtractor wrappedJWTExtractor;
+    private HierarchicalJWTClaimsExtractor wrappedJWTExtractor;
 
     @InjectMocks
     private JWTAuthenticationProvider uut;

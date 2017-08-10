@@ -33,8 +33,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { HierarchicalJWTClaimExtractorTest.class, JWTSecurityConfiguration.class })
-public class HierarchicalJWTClaimExtractorTest {
+@ContextConfiguration(classes = { HierarchicalJWTClaimsExtractorTest.class, JWTSecurityConfiguration.class })
+public class HierarchicalJWTClaimsExtractorTest {
 
     public static final String KEY_ID = "0815";
 
@@ -42,7 +42,7 @@ public class HierarchicalJWTClaimExtractorTest {
     private Optional<JWTSecurityConfig> securityConfig;
 
     @Autowired
-    private HierarchicalJWTClaimExtractor uut;
+    private HierarchicalJWTClaimsExtractor uut;
 
     private Algorithm algorithm;
 
