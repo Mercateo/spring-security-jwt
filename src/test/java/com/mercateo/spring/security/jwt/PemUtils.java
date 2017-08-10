@@ -1,4 +1,7 @@
-package com.mercateo.spring.security.jwt.security.verifier;
+package com.mercateo.spring.security.jwt;
+
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,10 +15,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-import org.bouncycastle.util.io.pem.PemObject;
-import org.bouncycastle.util.io.pem.PemReader;
-
-public class PemUtils {
+class PemUtils {
 
     private static byte[] parsePEM(InputStream inputStream) throws IOException {
         try (PemReader reader = new PemReader(new InputStreamReader(inputStream))){

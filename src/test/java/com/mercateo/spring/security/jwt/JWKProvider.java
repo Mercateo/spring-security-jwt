@@ -1,15 +1,14 @@
-package com.mercateo.spring.security.jwt.security.verifier;
+package com.mercateo.spring.security.jwt;
+
+import com.auth0.jwk.Jwk;
+import com.auth0.jwt.algorithms.Algorithm;
+import org.apache.commons.codec.binary.Base64;
 
 import java.io.IOException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Collections;
 import java.util.HashMap;
-
-import org.apache.commons.codec.binary.Base64;
-
-import com.auth0.jwk.Jwk;
-import com.auth0.jwt.algorithms.Algorithm;
 
 public class JWKProvider {
 
