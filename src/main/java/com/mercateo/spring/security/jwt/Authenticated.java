@@ -1,16 +1,17 @@
 package com.mercateo.spring.security.jwt;
 
 import java.util.Collection;
+import java.util.Optional;
 
-import io.vavr.collection.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mercateo.spring.security.jwt.result.JWTClaim;
 
+import io.vavr.collection.List;
 import io.vavr.collection.Map;
-import io.vavr.control.Option;
 
 public class Authenticated implements UserDetails {
 
@@ -22,10 +23,10 @@ public class Authenticated implements UserDetails {
 
     private final List<? extends GrantedAuthority> authorities;
 
-    private final Map<String, String> claims;
+    private final Map<String, JWTClaim> claims;
 
     public Authenticated(Long id, String username, String token, List<? extends GrantedAuthority> authorities,
-            Map<String, String> claims) {
+            Map<String, JWTClaim> claims) {
         this.id = id;
         this.username = username;
         this.token = token;
@@ -81,8 +82,8 @@ public class Authenticated implements UserDetails {
         return null;
     }
 
-    public Option<String> getClaim(String key) {
-        return claims.get(key);
+    public Optional<JWTClaim> getClaim(String key) {
+        return claims.get(key).toJavaOptional();
     }
 
     public static Authenticated fromContext() {

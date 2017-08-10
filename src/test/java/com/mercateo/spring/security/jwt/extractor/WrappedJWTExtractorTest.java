@@ -1,8 +1,7 @@
-package com.mercateo.spring.security.jwt.verifier;
+package com.mercateo.spring.security.jwt.extractor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.intThat;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
@@ -11,6 +10,12 @@ import java.util.Optional;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.mercateo.spring.security.jwt.exception.InvalidTokenException;
 import com.mercateo.spring.security.jwt.exception.MissingClaimException;
+import com.mercateo.spring.security.jwt.extractor.WrappedJWTExtractor;
+import com.mercateo.spring.security.jwt.verifier.JWKProvider;
+import com.mercateo.spring.security.jwt.verifier.JWTKeyset;
+import com.mercateo.spring.security.jwt.verifier.TestJWTSecurityConfiguration;
+import io.vavr.collection.List;
+import io.vavr.control.Option;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +39,7 @@ import lombok.val;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestJWTSecurityConfiguration.class, JWTSecurityConfiguration.class })
-public class WrappedJWTVerifierTest {
+public class WrappedJWTExtractorTest {
 
     public static final String KEY_ID = "0815";
 
@@ -42,7 +47,7 @@ public class WrappedJWTVerifierTest {
     private Optional<JWTSecurityConfig> securityConfig;
 
     @Autowired
-    private WrappedJWTVerifier uut;
+    private WrappedJWTExtractor uut;
 
     private Algorithm algorithm;
 
@@ -62,7 +67,7 @@ public class WrappedJWTVerifierTest {
 
     @Test
     public void shouldVerifySignedToken() throws Exception {
-        final String tokenString = JWT
+        val tokenString = JWT
             .create()
             .withIssuer("<issuer>")
             .withKeyId(KEY_ID)
@@ -72,10 +77,10 @@ public class WrappedJWTVerifierTest {
             .sign(algorithm);
         when(jwks.getKeysetForId(KEY_ID)).thenReturn(Try.success(jwk));
 
-        final JWTClaims claims = uut.collect(tokenString);
+        val claims = uut.collect(tokenString);
 
-        final Map<String, JWTClaim> claimsByName = claims.claims().groupBy(JWTClaim::name).mapValues(Traversable::head);
-        assertThat(claims.claims()).extracting(JWTClaim::name).containsExactlyInAnyOrder("scope", "foo");
+        val claimsByName = claims.claims();
+        assertThat(claimsByName.keySet()).containsExactlyInAnyOrder("scope", "foo");
 
         assertThat(claimsByName.get("scope")).extracting(JWTClaim::value).contains("test");
         assertThat(claimsByName.get("scope").map(JWTClaim::verified).get()).isTrue();
@@ -85,7 +90,7 @@ public class WrappedJWTVerifierTest {
 
     @Test
     public void shouldExtractNamespacedClaim() throws Exception {
-        final String tokenString = JWT
+        val tokenString = JWT
                 .create()
                 .withIssuer("<issuer>")
                 .withKeyId(KEY_ID)
@@ -94,10 +99,10 @@ public class WrappedJWTVerifierTest {
                 .sign(algorithm);
         when(jwks.getKeysetForId(KEY_ID)).thenReturn(Try.success(jwk));
 
-        final JWTClaims claims = uut.collect(tokenString);
+        val claims = uut.collect(tokenString);
 
-        final Map<String, JWTClaim> claimsByName = claims.claims().groupBy(JWTClaim::name).mapValues(Traversable::head);
-        assertThat(claims.claims()).extracting(JWTClaim::name).containsExactlyInAnyOrder("scope", "foo");
+        val claimsByName = claims.claims();
+        assertThat(claims.claims().keySet()).containsExactlyInAnyOrder("scope", "foo");
 
         assertThat(claimsByName.get("scope")).extracting(JWTClaim::value).contains("test");
         assertThat(claimsByName.get("scope").map(JWTClaim::verified).get()).isTrue();
@@ -123,15 +128,25 @@ public class WrappedJWTVerifierTest {
             .sign(Algorithm.none());
         when(jwks.getKeysetForId(KEY_ID)).thenReturn(Try.success(jwk));
 
-        final JWTClaims claims = uut.collect(tokenString);
+        val claims = uut.collect(tokenString);
 
-        final Map<String, JWTClaim> claimsByName = claims.claims().groupBy(JWTClaim::name).mapValues(Traversable::head);
-        assertThat(claims.claims()).extracting(JWTClaim::name).containsExactlyInAnyOrder("scope", "foo");
+        val claimsByName = claims.claims();
+        assertThat(claimsByName.keySet()).containsExactlyInAnyOrder("scope", "foo");
 
-        assertThat(claimsByName.get("scope")).extracting(JWTClaim::value).contains("test test2");
-        assertThat(claimsByName.get("scope").map(JWTClaim::verified).get()).isFalse();
-        assertThat(claimsByName.get("foo")).extracting(JWTClaim::value).contains("<foo>");
-        assertThat(claimsByName.get("foo").map(JWTClaim::verified).get()).isTrue();
+        final JWTClaim scope = claimsByName.get("scope").get();
+        assertThat(scope).extracting(JWTClaim::value).contains("test test2");
+        assertThat(scope.verified()).isFalse();
+        assertThat(scope.depth()).isEqualTo(0);
+
+        final JWTClaim innerScope = scope.innerClaim().get();
+        assertThat(innerScope).extracting(JWTClaim::value).contains("test");
+        assertThat(innerScope.verified()).isTrue();
+        assertThat(innerScope.depth()).isEqualTo(1);
+
+        val fooClaim = claimsByName.get("foo").get();
+        assertThat(fooClaim).extracting(JWTClaim::value).contains("<foo>");
+        assertThat(fooClaim.verified()).isTrue();
+        assertThat(fooClaim.depth()).isEqualTo(1);
     }
 
     @Test

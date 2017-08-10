@@ -7,13 +7,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.auth0.jwt.JWT;
+import com.mercateo.spring.security.jwt.extractor.WrappedJWTExtractor;
+import com.mercateo.spring.security.jwt.result.JWTAuthority;
 import com.mercateo.spring.security.jwt.result.JWTClaim;
 import com.mercateo.spring.security.jwt.result.JWTClaims;
-import com.mercateo.spring.security.jwt.verifier.WrappedJWTVerifier;
 
 import io.vavr.collection.List;
-import io.vavr.collection.Map;
-import io.vavr.collection.Traversable;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class JWTAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
-    private final WrappedJWTVerifier wrappedJWTVerifier;
+    private final WrappedJWTExtractor wrappedJWTExtractor;
 
     @Override
     public boolean supports(Class<?> authentication) {
@@ -38,19 +37,15 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
             throws AuthenticationException {
         final String tokenString = ((JWTAuthenticationToken) authentication).getToken();
-        final JWTClaims claims = wrappedJWTVerifier.collect(tokenString);
+        final JWTClaims claims = wrappedJWTExtractor.collect(tokenString);
 
         val token = JWT.decode(tokenString);
         val subject = token.getSubject();
         val id = (long) subject.hashCode();
 
-        List<GrantedAuthority> authorityList = List.empty();
+        val authorities = claims.claims().get("scope").map(JWTClaim::value).map(value -> value.split("\\s+")).map(List::of).map(
+                list -> list.map(value -> JWTAuthority.builder().authority(value).build())).getOrElse(List.empty());
 
-        final Map<String, String> claimsMap = claims
-            .claims()
-            .groupBy(JWTClaim::name)
-            .mapValues(Traversable::head)
-            .mapValues(JWTClaim::value);
-        return new Authenticated(id, "subject", tokenString, authorityList, claimsMap);
+        return new Authenticated(id, subject, tokenString, authorities, claims.claims());
     }
 }

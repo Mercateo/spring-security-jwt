@@ -1,13 +1,11 @@
 package com.mercateo.spring.security.jwt;
 
 import com.mercateo.spring.security.jwt.result.JWTClaim;
+import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Collections;
-import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,8 +19,8 @@ public class AuthenticatedTest {
 
     @Before
     public void setUp() throws Exception {
-        Map<String, String> claimsStringHashMap = io.vavr.collection.HashMap.empty();
-        claimsStringHashMap = claimsStringHashMap.put("foo_bar", "<foo_bar>");
+        Map<String, JWTClaim> claimsStringHashMap = HashMap.empty();
+        claimsStringHashMap = claimsStringHashMap.put("foo_bar", JWTClaim.builder().name("foo_bar").value("<foo_bar>").issuer("<issuer>").build());
         uut = new Authenticated(123l, "<username>", "<token>", List.empty(), claimsStringHashMap);
     }
 

@@ -7,7 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.mercateo.spring.security.jwt.verifier.WrappedJWTVerifier;
+import com.mercateo.spring.security.jwt.extractor.WrappedJWTExtractor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 
@@ -20,9 +20,9 @@ public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessi
 
     private final static String TOKEN_HEADER = "authorization";
 
-    private final WrappedJWTVerifier jwtVerifier;
+    private final WrappedJWTExtractor jwtVerifier;
 
-    public JWTAuthenticationTokenFilter(WrappedJWTVerifier jwtVerifier) {
+    public JWTAuthenticationTokenFilter(WrappedJWTExtractor jwtVerifier) {
         super("/**");
         this.jwtVerifier = jwtVerifier;
     }

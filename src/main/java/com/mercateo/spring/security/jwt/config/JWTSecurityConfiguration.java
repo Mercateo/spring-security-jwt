@@ -21,7 +21,7 @@ import com.mercateo.spring.security.jwt.JWTAuthenticationProvider;
 import com.mercateo.spring.security.jwt.JWTAuthenticationSuccessHandler;
 import com.mercateo.spring.security.jwt.JWTAuthenticationTokenFilter;
 import com.mercateo.spring.security.jwt.verifier.JWTVerifierFactory;
-import com.mercateo.spring.security.jwt.verifier.WrappedJWTVerifier;
+import com.mercateo.spring.security.jwt.extractor.WrappedJWTExtractor;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,11 +43,11 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    WrappedJWTVerifier wrappedVerifier() {
+    WrappedJWTExtractor wrappedVerifier() {
         final Optional<JWTVerifier> jwtVerifier = config.map(JWTSecurityConfig::jwtKeyset).flatMap(jwks -> jwks
             .map(JWTVerifierFactory::new)
             .map(JWTVerifierFactory::create));
-        return new WrappedJWTVerifier(jwtSecurityConfig());
+        return new WrappedJWTExtractor(jwtSecurityConfig());
     }
 
     private JWTSecurityConfig jwtSecurityConfig() {
@@ -72,8 +72,8 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public JWTAuthenticationProvider jwtAuthenticationProvider(WrappedJWTVerifier wrappedJWTVerifier) {
-        return new JWTAuthenticationProvider(wrappedJWTVerifier);
+    public JWTAuthenticationProvider jwtAuthenticationProvider(WrappedJWTExtractor wrappedJWTExtractor) {
+        return new JWTAuthenticationProvider(wrappedJWTExtractor);
     }
 
     @Override
