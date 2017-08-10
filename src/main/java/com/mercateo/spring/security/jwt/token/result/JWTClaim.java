@@ -20,10 +20,7 @@ public interface JWTClaim {
         return false;
     }
 
-    @Value.Default
-    default Optional<JWTClaim> innerClaim() {
-        return Optional.empty();
-    }
+    Optional<JWTClaim> innerClaim();
 
     @Value.Default
     default int depth() {

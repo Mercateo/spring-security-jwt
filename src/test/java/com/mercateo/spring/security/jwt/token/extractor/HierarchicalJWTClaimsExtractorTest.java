@@ -10,7 +10,6 @@ import java.util.Optional;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
 import com.mercateo.spring.security.jwt.token.exception.MissingClaimException;
-import com.mercateo.spring.security.jwt.token.extractor.HierarchicalJWTClaimExtractor;
 import com.mercateo.spring.security.jwt.security.verifier.JWKProvider;
 import com.mercateo.spring.security.jwt.token.keyset.JWTKeyset;
 import com.mercateo.spring.security.jwt.security.verifier.TestJWTSecurityConfiguration;
@@ -34,7 +33,7 @@ import lombok.val;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestJWTSecurityConfiguration.class, JWTSecurityConfiguration.class })
-public class HierarchicalJWTClaimExtractorTest {
+public class HierarchicalJWTClaimsExtractorTest {
 
     public static final String KEY_ID = "0815";
 
@@ -42,7 +41,7 @@ public class HierarchicalJWTClaimExtractorTest {
     private Optional<JWTSecurityConfig> securityConfig;
 
     @Autowired
-    private HierarchicalJWTClaimExtractor uut;
+    private HierarchicalJWTClaimsExtractor uut;
 
     private Algorithm algorithm;
 
