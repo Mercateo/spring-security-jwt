@@ -31,6 +31,7 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails,
             UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+        // intentionally left blank
     }
 
     @Override
@@ -47,7 +48,7 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
 
         val token = JWT.decode(tokenString);
         val subject = token.getSubject();
-        val id = (long) subject.hashCode();
+        val id = subject.hashCode();
 
         val authorities = claims
             .claims()

@@ -13,7 +13,7 @@ class ClaimExtractor {
 
     private final List<String> namespaces;
 
-    List<JWTClaim> extractClaims(DecodedJWT token, Boolean verified, int depth) {
+    List<JWTClaim> extractClaims(DecodedJWT token, boolean verified, int depth) {
         val tokenIssuer = token.getIssuer();
         return requiredClaims.flatMap(claimName -> namespaces
                 .map(namespace -> namespace + claimName)

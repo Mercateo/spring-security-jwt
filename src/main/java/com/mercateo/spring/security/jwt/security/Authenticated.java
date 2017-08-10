@@ -25,9 +25,9 @@ public class Authenticated implements UserDetails {
 
     private final Map<String, JWTClaim> claims;
 
-    public Authenticated(Long id, String username, String token, List<? extends GrantedAuthority> authorities,
+    public Authenticated(long id, String username, String token, List<? extends GrantedAuthority> authorities,
             Map<String, JWTClaim> claims) {
-        this.id = id;
+        this.id = Long.valueOf(id);
         this.username = username;
         this.token = token;
         this.authorities = authorities;

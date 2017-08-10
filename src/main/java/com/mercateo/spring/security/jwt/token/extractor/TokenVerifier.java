@@ -1,5 +1,7 @@
 package com.mercateo.spring.security.jwt.token.extractor;
 
+import static java.lang.Boolean.FALSE;
+
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
@@ -15,13 +17,13 @@ class TokenVerifier {
 
     private final Option<JWTVerifier> verifier;
 
-    Boolean verifyToken(DecodedJWT token) {
+    boolean verifyToken(DecodedJWT token) {
         val verifyToken = Function2.of(this::verify).apply(token);
 
         return verifier //
             .filter(ignore -> !"none".equals(token.getAlgorithm()))
             .map(verifyToken)
-            .getOrElse(false);
+            .getOrElse(FALSE).booleanValue();
     }
 
     private boolean verify(DecodedJWT token, JWTVerifier verifier) {
