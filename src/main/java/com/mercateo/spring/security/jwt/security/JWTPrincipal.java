@@ -13,7 +13,7 @@ import com.mercateo.spring.security.jwt.token.result.JWTClaim;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 
-public class Authenticated implements UserDetails {
+public class JWTPrincipal implements UserDetails {
 
     private final Long id;
 
@@ -25,7 +25,7 @@ public class Authenticated implements UserDetails {
 
     private final Map<String, JWTClaim> claims;
 
-    public Authenticated(long id, String username, String token, List<? extends GrantedAuthority> authorities,
+    public JWTPrincipal(long id, String username, String token, List<? extends GrantedAuthority> authorities,
             Map<String, JWTClaim> claims) {
         this.id = Long.valueOf(id);
         this.username = username;
@@ -86,7 +86,7 @@ public class Authenticated implements UserDetails {
         return claims.get(key).toJavaOptional();
     }
 
-    public static Authenticated fromContext() {
-        return (Authenticated) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public static JWTPrincipal fromContext() {
+        return (JWTPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

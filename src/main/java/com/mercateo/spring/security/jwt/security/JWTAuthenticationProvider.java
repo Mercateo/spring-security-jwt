@@ -59,6 +59,6 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
             .map(list -> list.map(value -> JWTAuthority.builder().authority(value).build()))
             .getOrElse(List.empty());
 
-        return new Authenticated(id, subject, tokenString, authorities, claims.claims());
+        return new JWTPrincipal(id, subject, tokenString, authorities, claims.claims());
     }
 }

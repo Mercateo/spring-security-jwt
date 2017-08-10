@@ -1,6 +1,6 @@
 package com.mercateo.spring.security.jwt.security;
 
-import com.mercateo.spring.security.jwt.security.Authenticated;
+import com.mercateo.spring.security.jwt.security.JWTPrincipal;
 import com.mercateo.spring.security.jwt.token.result.JWTClaim;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
@@ -10,9 +10,9 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AuthenticatedTest {
+public class JWTPrincipalTest {
 
-    private Authenticated uut;
+    private JWTPrincipal uut;
 
     static enum Claims {
         FOO_BAR
@@ -22,7 +22,7 @@ public class AuthenticatedTest {
     public void setUp() throws Exception {
         Map<String, JWTClaim> claimsStringHashMap = HashMap.empty();
         claimsStringHashMap = claimsStringHashMap.put("foo_bar", JWTClaim.builder().name("foo_bar").value("<foo_bar>").issuer("<issuer>").build());
-        uut = new Authenticated(123l, "<username>", "<token>", List.empty(), claimsStringHashMap);
+        uut = new JWTPrincipal(123l, "<username>", "<token>", List.empty(), claimsStringHashMap);
     }
 
     @Test

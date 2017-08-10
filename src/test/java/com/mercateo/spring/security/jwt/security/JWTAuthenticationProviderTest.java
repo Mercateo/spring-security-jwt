@@ -45,7 +45,7 @@ public class JWTAuthenticationProviderTest {
 
         assertThat(userDetails).isNotNull();
         assertThat(userDetails.getUsername()).isEqualTo("<subject>");
-        assertThat(((Authenticated) userDetails).getToken()).isEqualTo(tokenString);
+        assertThat(((JWTPrincipal) userDetails).getToken()).isEqualTo(tokenString);
         assertThat(userDetails.getAuthorities()).isEmpty();
     }
 
@@ -64,7 +64,7 @@ public class JWTAuthenticationProviderTest {
 
         assertThat(userDetails).isNotNull();
         assertThat(userDetails.getUsername()).isEqualTo("<subject>");
-        assertThat(((Authenticated) userDetails).getToken()).isEqualTo(tokenString);
+        assertThat(((JWTPrincipal) userDetails).getToken()).isEqualTo(tokenString);
         assertThat(userDetails.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsExactlyInAnyOrder(
                 "foo", "bar");
     }
