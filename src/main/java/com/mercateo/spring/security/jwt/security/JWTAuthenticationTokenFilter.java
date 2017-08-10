@@ -11,7 +11,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 
 import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
-import com.mercateo.spring.security.jwt.token.extractor.WrappedJWTExtractor;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,11 +19,8 @@ public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessi
 
     private final static String TOKEN_HEADER = "authorization";
 
-    private final WrappedJWTExtractor jwtVerifier;
-
-    public JWTAuthenticationTokenFilter(WrappedJWTExtractor jwtVerifier) {
+    public JWTAuthenticationTokenFilter() {
         super("/**");
-        this.jwtVerifier = jwtVerifier;
     }
 
     @Override

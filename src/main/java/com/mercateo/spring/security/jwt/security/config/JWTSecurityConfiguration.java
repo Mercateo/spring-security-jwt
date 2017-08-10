@@ -3,7 +3,6 @@ package com.mercateo.spring.security.jwt.security.config;
 import java.util.Collections;
 import java.util.Optional;
 
-import com.mercateo.spring.security.jwt.security.verifier.JWTVerifierFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,12 +15,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.auth0.jwt.JWTVerifier;
 import com.mercateo.spring.security.jwt.security.JWTAuthenticationEntryPoint;
 import com.mercateo.spring.security.jwt.security.JWTAuthenticationProvider;
 import com.mercateo.spring.security.jwt.security.JWTAuthenticationSuccessHandler;
 import com.mercateo.spring.security.jwt.security.JWTAuthenticationTokenFilter;
-import com.mercateo.spring.security.jwt.token.extractor.WrappedJWTExtractor;
+import com.mercateo.spring.security.jwt.token.extractor.HierarchicalJWTClaimExtractor;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,19 +41,12 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    WrappedJWTExtractor wrappedVerifier() {
-        final Optional<JWTVerifier> jwtVerifier = config.map(JWTSecurityConfig::jwtKeyset).flatMap(jwks -> jwks
-            .map(JWTVerifierFactory::new)
-            .map(JWTVerifierFactory::create));
-        return new WrappedJWTExtractor(jwtSecurityConfig());
+    HierarchicalJWTClaimExtractor wrappedVerifier() {
+        return new HierarchicalJWTClaimExtractor(jwtSecurityConfig());
     }
 
     private JWTSecurityConfig jwtSecurityConfig() {
         return config.orElse(defaultConfig);
-    }
-
-    private static IllegalStateException map(Throwable cause) {
-        return new IllegalStateException(cause);
     }
 
     @Bean
@@ -65,14 +56,14 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     public JWTAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
-        JWTAuthenticationTokenFilter authenticationTokenFilter = new JWTAuthenticationTokenFilter(wrappedVerifier());
+        JWTAuthenticationTokenFilter authenticationTokenFilter = new JWTAuthenticationTokenFilter();
         authenticationTokenFilter.setAuthenticationManager(authenticationManager());
         authenticationTokenFilter.setAuthenticationSuccessHandler(new JWTAuthenticationSuccessHandler());
         return authenticationTokenFilter;
     }
 
     @Bean
-    public JWTAuthenticationProvider jwtAuthenticationProvider(WrappedJWTExtractor wrappedJWTExtractor) {
+    public JWTAuthenticationProvider jwtAuthenticationProvider(HierarchicalJWTClaimExtractor wrappedJWTExtractor) {
         return new JWTAuthenticationProvider(wrappedJWTExtractor);
     }
 

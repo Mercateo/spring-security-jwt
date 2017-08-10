@@ -18,9 +18,10 @@ import org.bouncycastle.util.io.pem.PemReader;
 public class PemUtils {
 
     private static byte[] parsePEM(InputStream inputStream) throws IOException {
-        PemReader reader = new PemReader(new InputStreamReader(inputStream));
-        PemObject pemObject = reader.readPemObject();
-        return pemObject.getContent();
+        try (PemReader reader = new PemReader(new InputStreamReader(inputStream))){
+            PemObject pemObject = reader.readPemObject();
+            return pemObject.getContent();
+        }
     }
 
     private static PublicKey getPublicKey(byte[] keyBytes, String algorithm) {

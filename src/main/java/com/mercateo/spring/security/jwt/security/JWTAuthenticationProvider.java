@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.auth0.jwt.JWT;
 import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
 import com.mercateo.spring.security.jwt.token.exception.TokenException;
-import com.mercateo.spring.security.jwt.token.extractor.WrappedJWTExtractor;
+import com.mercateo.spring.security.jwt.token.extractor.HierarchicalJWTClaimExtractor;
 import com.mercateo.spring.security.jwt.token.result.JWTClaim;
 import com.mercateo.spring.security.jwt.token.result.JWTClaims;
 
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class JWTAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
-    private final WrappedJWTExtractor wrappedJWTExtractor;
+    private final HierarchicalJWTClaimExtractor wrappedJWTExtractor;
 
     @Override
     public boolean supports(Class<?> authentication) {
@@ -31,6 +31,7 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails,
             UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+        // intentionally left blank
     }
 
     @Override
@@ -40,14 +41,14 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
 
         final JWTClaims claims;
         try {
-            claims = wrappedJWTExtractor.extract(tokenString);
+            claims = wrappedJWTExtractor.extractClaims(tokenString);
         } catch (TokenException e) {
             throw new InvalidTokenException("filed to extract token", e);
         }
 
         val token = JWT.decode(tokenString);
         val subject = token.getSubject();
-        val id = (long) subject.hashCode();
+        val id = subject.hashCode();
 
         val authorities = claims
             .claims()
@@ -58,6 +59,6 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
             .map(list -> list.map(value -> JWTAuthority.builder().authority(value).build()))
             .getOrElse(List.empty());
 
-        return new Authenticated(id, subject, tokenString, authorities, claims.claims());
+        return new JWTPrincipal(id, subject, tokenString, authorities, claims.claims());
     }
 }

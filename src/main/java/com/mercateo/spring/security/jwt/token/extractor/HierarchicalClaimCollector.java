@@ -17,7 +17,6 @@ class HierarchicalClaimCollector {
 
         Optional<JWTClaim> innerClaim = Optional.empty();
 
-        List<JWTClaim> wrappedClaims = List.empty();
         for (JWTClaim jwtClaim : reverse) {
             innerClaim = Optional.of(JWTClaim.builder().from(jwtClaim).innerClaim(innerClaim).build());
         }

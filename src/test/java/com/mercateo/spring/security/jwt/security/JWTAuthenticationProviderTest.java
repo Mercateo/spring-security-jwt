@@ -3,7 +3,7 @@ package com.mercateo.spring.security.jwt.security;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.mercateo.spring.security.jwt.token.extractor.WrappedJWTExtractor;
+import com.mercateo.spring.security.jwt.token.extractor.HierarchicalJWTClaimExtractor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -24,7 +24,7 @@ import lombok.val;
 public class JWTAuthenticationProviderTest {
 
     @Mock
-    private WrappedJWTExtractor wrappedJWTExtractor;
+    private HierarchicalJWTClaimExtractor wrappedJWTExtractor;
 
     @InjectMocks
     private JWTAuthenticationProvider uut;
@@ -39,13 +39,13 @@ public class JWTAuthenticationProviderTest {
 
         JWTClaims claims = JWTClaims.builder().claims(claimsMap).token(JWT.decode(tokenString)).build();
 
-        when(wrappedJWTExtractor.extract(tokenString)).thenReturn(claims);
+        when(wrappedJWTExtractor.extractClaims(tokenString)).thenReturn(claims);
 
         val userDetails = uut.retrieveUser("<username>", tokenContainer);
 
         assertThat(userDetails).isNotNull();
         assertThat(userDetails.getUsername()).isEqualTo("<subject>");
-        assertThat(((Authenticated) userDetails).getToken()).isEqualTo(tokenString);
+        assertThat(((JWTPrincipal) userDetails).getToken()).isEqualTo(tokenString);
         assertThat(userDetails.getAuthorities()).isEmpty();
     }
 
@@ -58,13 +58,13 @@ public class JWTAuthenticationProviderTest {
                 "scope", JWTClaim.builder().name("scope").value("foo bar").build());
 
         JWTClaims claims = JWTClaims.builder().claims(claimsMap).token(JWT.decode(tokenString)).build();
-        when(wrappedJWTExtractor.extract(tokenString)).thenReturn(claims);
+        when(wrappedJWTExtractor.extractClaims(tokenString)).thenReturn(claims);
 
         val userDetails = uut.retrieveUser("<username>", tokenContainer);
 
         assertThat(userDetails).isNotNull();
         assertThat(userDetails.getUsername()).isEqualTo("<subject>");
-        assertThat(((Authenticated) userDetails).getToken()).isEqualTo(tokenString);
+        assertThat(((JWTPrincipal) userDetails).getToken()).isEqualTo(tokenString);
         assertThat(userDetails.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsExactlyInAnyOrder(
                 "foo", "bar");
     }
