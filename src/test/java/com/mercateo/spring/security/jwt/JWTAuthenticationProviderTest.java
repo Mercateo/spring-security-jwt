@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
 import com.auth0.jwt.JWT;
@@ -67,5 +68,15 @@ public class JWTAuthenticationProviderTest {
         assertThat(((Authenticated) userDetails).getToken()).isEqualTo(tokenString);
         assertThat(userDetails.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsExactlyInAnyOrder(
                 "foo", "bar");
+    }
+
+    @Test
+    public void shouldSupportJWTAuthToken() throws Exception {
+        assertThat(uut.supports(JWTAuthenticationToken.class)).isTrue();
+    }
+    
+    @Test
+    public void shouldNoSupportJWTAuthTokenSuperclass() throws Exception {
+        assertThat(uut.supports(JWTAuthenticationToken.class.getSuperclass())).isFalse();
     }
 }
