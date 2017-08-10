@@ -1,12 +1,12 @@
 package com.mercateo.spring.security.jwt.security;
 
+import com.mercateo.spring.security.jwt.security.exception.InvalidTokenException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.auth0.jwt.JWT;
-import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
 import com.mercateo.spring.security.jwt.token.exception.TokenException;
 import com.mercateo.spring.security.jwt.token.extractor.HierarchicalJWTClaimsExtractor;
 import com.mercateo.spring.security.jwt.token.result.JWTClaim;
@@ -43,7 +43,7 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
         try {
             claims = hierarchicalJWTClaimsExtractor.extractClaims(tokenString);
         } catch (TokenException e) {
-            throw new InvalidTokenException("filed to extract token", e);
+            throw new InvalidTokenException("failed to extract token", e);
         }
 
         val token = JWT.decode(tokenString);

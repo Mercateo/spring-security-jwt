@@ -1,9 +1,9 @@
 package com.mercateo.spring.security.jwt.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
-import com.mercateo.spring.security.jwt.token.extractor.HierarchicalJWTClaimsExtractor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -13,6 +13,8 @@ import org.springframework.security.core.GrantedAuthority;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
+import com.mercateo.spring.security.jwt.token.extractor.HierarchicalJWTClaimsExtractor;
 import com.mercateo.spring.security.jwt.token.result.JWTClaim;
 import com.mercateo.spring.security.jwt.token.result.JWTClaims;
 
@@ -24,7 +26,7 @@ import lombok.val;
 public class JWTAuthenticationProviderTest {
 
     @Mock
-    private HierarchicalJWTClaimsExtractor wrappedJWTExtractor;
+    private HierarchicalJWTClaimsExtractor hierarchicalJWTClaimsExtractor;
 
     @InjectMocks
     private JWTAuthenticationProvider uut;
@@ -39,7 +41,7 @@ public class JWTAuthenticationProviderTest {
 
         JWTClaims claims = JWTClaims.builder().claims(claimsMap).token(JWT.decode(tokenString)).build();
 
-        when(wrappedJWTExtractor.extractClaims(tokenString)).thenReturn(claims);
+        when(hierarchicalJWTClaimsExtractor.extractClaims(tokenString)).thenReturn(claims);
 
         val userDetails = uut.retrieveUser("<username>", tokenContainer);
 
@@ -58,7 +60,7 @@ public class JWTAuthenticationProviderTest {
                 "scope", JWTClaim.builder().name("scope").value("foo bar").build());
 
         JWTClaims claims = JWTClaims.builder().claims(claimsMap).token(JWT.decode(tokenString)).build();
-        when(wrappedJWTExtractor.extractClaims(tokenString)).thenReturn(claims);
+        when(hierarchicalJWTClaimsExtractor.extractClaims(tokenString)).thenReturn(claims);
 
         val userDetails = uut.retrieveUser("<username>", tokenContainer);
 
@@ -77,5 +79,19 @@ public class JWTAuthenticationProviderTest {
     @Test
     public void shouldNoSupportJWTAuthTokenSuperclass() throws Exception {
         assertThat(uut.supports(JWTAuthenticationToken.class.getSuperclass())).isFalse();
+    }
+
+    @Test
+    public void throwsInvalidTokenExceptionAtErrorDuringExtract() {
+        val tokenString = "<token>";
+
+        val exception = new InvalidTokenException("foo", new RuntimeException());
+        when(hierarchicalJWTClaimsExtractor.extractClaims(tokenString)).thenThrow(exception);
+
+        val tokenContainer = new JWTAuthenticationToken(tokenString);
+        assertThatThrownBy(() -> uut.retrieveUser("<userName>", tokenContainer))
+            .isInstanceOf(com.mercateo.spring.security.jwt.security.exception.InvalidTokenException.class)
+            .hasMessage("failed to extract token")
+            .hasCause(exception);
     }
 }
