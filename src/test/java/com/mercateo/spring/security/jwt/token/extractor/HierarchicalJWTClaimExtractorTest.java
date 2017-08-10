@@ -1,39 +1,39 @@
 package com.mercateo.spring.security.jwt.token.extractor;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
-
-import java.util.Date;
-import java.util.Optional;
-
+import com.auth0.jwk.Jwk;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTCreator;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.mercateo.spring.security.jwt.security.config.JWTSecurityConfig;
+import com.mercateo.spring.security.jwt.security.config.JWTSecurityConfiguration;
+import com.mercateo.spring.security.jwt.JWKProvider;
 import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
 import com.mercateo.spring.security.jwt.token.exception.MissingClaimException;
-import com.mercateo.spring.security.jwt.token.extractor.HierarchicalJWTClaimExtractor;
-import com.mercateo.spring.security.jwt.security.verifier.JWKProvider;
+import com.mercateo.spring.security.jwt.token.exception.MissingSignatureException;
 import com.mercateo.spring.security.jwt.token.keyset.JWTKeyset;
-import com.mercateo.spring.security.jwt.security.verifier.TestJWTSecurityConfiguration;
+import com.mercateo.spring.security.jwt.token.result.JWTClaim;
+import com.mercateo.spring.security.jwt.token.result.JWTClaims;
+import io.vavr.control.Try;
+import lombok.val;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.auth0.jwk.Jwk;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.mercateo.spring.security.jwt.security.config.JWTSecurityConfig;
-import com.mercateo.spring.security.jwt.security.config.JWTSecurityConfiguration;
-import com.mercateo.spring.security.jwt.token.exception.MissingSignatureException;
-import com.mercateo.spring.security.jwt.token.result.JWTClaim;
+import java.util.Date;
+import java.util.Optional;
 
-import io.vavr.control.Try;
-import lombok.val;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { TestJWTSecurityConfiguration.class, JWTSecurityConfiguration.class })
+@ContextConfiguration(classes = { HierarchicalJWTClaimExtractorTest.class, JWTSecurityConfiguration.class })
 public class HierarchicalJWTClaimExtractorTest {
 
     public static final String KEY_ID = "0815";
@@ -50,6 +50,17 @@ public class HierarchicalJWTClaimExtractorTest {
 
     private JWTKeyset jwks;
 
+    @Bean
+    public JWTSecurityConfig securityConfig() {
+        return JWTSecurityConfig
+                .builder()
+                .addAnonymousPaths("/admin/app_health")
+                .jwtKeyset(mock(JWTKeyset.class))
+                .addNamespaces("https://test.org/")
+                .addRequiredClaims("scope", "foo")
+                .build();
+    }
+
     @Before
     public void setUp() {
         final JWKProvider jwkProvider = new JWKProvider();
@@ -60,35 +71,43 @@ public class HierarchicalJWTClaimExtractorTest {
                 "could not fetch jwks mock"));
     }
 
+    private JWTCreator.Builder unsignedJwtBuilder() {
+        return JWT.create().withIssuer("<otherIssuer>");
+    }
+
+    private JWTCreator.Builder signedJwtBuilder() {
+        return JWT.create().withIssuer("<issuer>").withKeyId(KEY_ID);
+    }
+
+    private JWTClaim getClaimByName(JWTClaims claims, String name) {
+        return claims.claims().get(name).get();
+    }
+
+    private void assertClaimContent(JWTClaim claim, String value, boolean verified, int depth) {
+        assertThat(claim).extracting(JWTClaim::value).contains(value);
+        assertThat(claim.verified()).isEqualTo(verified);
+        assertThat(claim.depth()).isEqualTo(depth);
+    }
+
     @Test
-    public void shouldVerifySignedToken() throws Exception {
-        val tokenString = JWT
-            .create()
-            .withIssuer("<issuer>")
-            .withKeyId(KEY_ID)
+    public void extractsVerifiedClaims() throws Exception {
+        val tokenString = signedJwtBuilder()
             .withClaim("scope", "test")
             .withClaim("foo", "<foo>")
-                .withClaim("bar", "<bar>")
+            .withClaim("bar", "<bar>")
             .sign(algorithm);
         when(jwks.getKeysetForId(KEY_ID)).thenReturn(Try.success(jwk));
 
         val claims = uut.extractClaims(tokenString);
 
-        val claimsByName = claims.claims();
-        assertThat(claimsByName.keySet()).containsExactlyInAnyOrder("scope", "foo");
-
-        assertThat(claimsByName.get("scope")).extracting(JWTClaim::value).contains("test");
-        assertThat(claimsByName.get("scope").map(JWTClaim::verified).get()).isTrue();
-        assertThat(claimsByName.get("foo")).extracting(JWTClaim::value).contains("<foo>");
-        assertThat(claimsByName.get("foo").map(JWTClaim::verified).get()).isTrue();
+        assertThat(claims.claims().keySet()).containsExactlyInAnyOrder("scope", "foo");
+        assertClaimContent(getClaimByName(claims, "scope"), "test", true, 0);
+        assertClaimContent(getClaimByName(claims, "foo"), "<foo>", true, 0);
     }
 
     @Test
-    public void shouldExtractNamespacedClaim() throws Exception {
-        val tokenString = JWT
-                .create()
-                .withIssuer("<issuer>")
-                .withKeyId(KEY_ID)
+    public void extractsNamespacedClaims() throws Exception {
+        val tokenString = signedJwtBuilder()
                 .withClaim("scope", "test")
                 .withClaim("https://test.org/foo", "<foo>")
                 .sign(algorithm);
@@ -96,56 +115,53 @@ public class HierarchicalJWTClaimExtractorTest {
 
         val claims = uut.extractClaims(tokenString);
 
-        val claimsByName = claims.claims();
         assertThat(claims.claims().keySet()).containsExactlyInAnyOrder("scope", "foo");
-
-        assertThat(claimsByName.get("scope")).extracting(JWTClaim::value).contains("test");
-        assertThat(claimsByName.get("scope").map(JWTClaim::verified).get()).isTrue();
-        assertThat(claimsByName.get("foo")).extracting(JWTClaim::value).contains("<foo>");
-        assertThat(claimsByName.get("foo").map(JWTClaim::verified).get()).isTrue();
+        assertClaimContent(getClaimByName(claims, "foo"), "<foo>", true, 0);
     }
 
     @Test
-    public void shouldVerifyWrappedSignedToken() throws Exception {
-        val wrappedTokenString = JWT
-            .create()
-            .withIssuer("<issuer>")
-            .withKeyId(KEY_ID)
-            .withClaim("scope", "test")
-            .withClaim("foo", "<foo>")
-            .sign(algorithm);
+    public void mergesClaimsFromInnerAndOuterToken() throws Exception {
+        val wrappedTokenString = signedJwtBuilder()
+                .withClaim("scope", "test")
+                .withClaim("foo", "<foo>")
+                .sign(algorithm);
 
-        val tokenString = JWT
-            .create()
-            .withIssuer("<otherIssuer>")
-            .withClaim("scope", "test test2")
-            .withClaim("jwt", wrappedTokenString)
-            .sign(Algorithm.none());
+        val tokenString = unsignedJwtBuilder()
+                .withClaim("scope", "test test2")
+                .withClaim("jwt", wrappedTokenString)
+                .sign(Algorithm.none());
         when(jwks.getKeysetForId(KEY_ID)).thenReturn(Try.success(jwk));
 
         val claims = uut.extractClaims(tokenString);
 
-        val claimsByName = claims.claims();
-        assertThat(claimsByName.keySet()).containsExactlyInAnyOrder("scope", "foo");
+        assertThat(claims.claims().keySet()).containsExactlyInAnyOrder("scope", "foo");
 
-        final JWTClaim scope = claimsByName.get("scope").get();
-        assertThat(scope).extracting(JWTClaim::value).contains("test test2");
-        assertThat(scope.verified()).isFalse();
-        assertThat(scope.depth()).isEqualTo(0);
-
-        final JWTClaim innerScope = scope.innerClaim().get();
-        assertThat(innerScope).extracting(JWTClaim::value).contains("test");
-        assertThat(innerScope.verified()).isTrue();
-        assertThat(innerScope.depth()).isEqualTo(1);
-
-        val fooClaim = claimsByName.get("foo").get();
-        assertThat(fooClaim).extracting(JWTClaim::value).contains("<foo>");
-        assertThat(fooClaim.verified()).isTrue();
-        assertThat(fooClaim.depth()).isEqualTo(1);
+        assertClaimContent(getClaimByName(claims, "scope"), "test test2", false, 0);
+        assertClaimContent(getClaimByName(claims, "foo"), "<foo>", true, 1);
     }
 
     @Test
-    public void shouldFailWithoutSignedToken() {
+    public void keepsClaimsFromInnerTokenAsInnerClaims() throws Exception {
+        val wrappedTokenString = signedJwtBuilder()
+                .withClaim("scope", "test")
+                .withClaim("foo", "<foo>")
+                .sign(algorithm);
+
+        val tokenString = unsignedJwtBuilder()
+                .withClaim("scope", "test test2")
+                .withClaim("jwt", wrappedTokenString)
+                .sign(Algorithm.none());
+        when(jwks.getKeysetForId(KEY_ID)).thenReturn(Try.success(jwk));
+
+        val claims = uut.extractClaims(tokenString);
+
+        final JWTClaim scope = getClaimByName(claims, "scope");
+        final JWTClaim innerScope = scope.innerClaim().get();
+        assertClaimContent(innerScope, "test", true, 1);
+    }
+
+    @Test
+    public void throwsExceptionWithoutSignedToken() {
         final String tokenString = JWT.create().sign(Algorithm.none());
 
         assertThatThrownBy(() -> uut.extractClaims(tokenString)) //
@@ -154,11 +170,8 @@ public class HierarchicalJWTClaimExtractorTest {
     }
 
     @Test
-    public void shouldFailWhenRequiredScopeIsMissing() throws Exception {
-        final String tokenString = JWT
-                .create()
-                .withIssuer("<issuer>")
-                .withKeyId(KEY_ID)
+    public void throwsExceptionWhenRequiredScopeIsMissing() throws Exception {
+        final String tokenString = signedJwtBuilder()
                 .withClaim("scope", "test")
                 .sign(algorithm);
         when(jwks.getKeysetForId(KEY_ID)).thenReturn(Try.success(jwk));
@@ -168,13 +181,9 @@ public class HierarchicalJWTClaimExtractorTest {
                 .hasMessage("missing required claim(s): foo");
     }
 
-
     @Test
-    public void shouldFailWithExpiredToken() throws Exception {
-        final String tokenString = JWT
-                .create()
-                .withIssuer("<issuer>")
-                .withKeyId(KEY_ID)
+    public void throwsExceptionWhenTokenIsExpired() throws Exception {
+        final String tokenString = signedJwtBuilder()
                 .withClaim("scope", "test")
                 .withClaim("https://test.org/foo", "<foo>")
                 .withExpiresAt(new Date(System.currentTimeMillis() - 10000))

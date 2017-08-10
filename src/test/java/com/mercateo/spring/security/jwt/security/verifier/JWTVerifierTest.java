@@ -1,24 +1,23 @@
 package com.mercateo.spring.security.jwt.security.verifier;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
-import java.util.Date;
-
+import com.auth0.jwk.Jwk;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.mercateo.spring.security.jwt.JWKProvider;
 import com.mercateo.spring.security.jwt.token.keyset.JWTKeyset;
+import io.vavr.control.Try;
+import lombok.val;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.auth0.jwk.Jwk;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
+import java.util.Date;
 
-import io.vavr.control.Try;
-import lombok.val;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JWTVerifierTest {
