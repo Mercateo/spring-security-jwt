@@ -18,7 +18,7 @@ import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class WrappedJWTExtractor {
+public class HierarchicalJWTClaimExtractor {
 
     public static final String WRAPPED_TOKEN_KEY = "jwt";
 
@@ -26,14 +26,14 @@ public class WrappedJWTExtractor {
 
     private final TokenVerifier verifier;
 
-    private final ClaimExtractor extractor;
+    private final DecodedJWTClaimExtractor extractor;
 
     private final HierarchicalClaimCollector collector;
 
-    public WrappedJWTExtractor(JWTSecurityConfig config) {
+    public HierarchicalJWTClaimExtractor(JWTSecurityConfig config) {
         this.config = config;
         this.verifier = new TokenVerifier(Option.ofOptional(config.jwtVerifier()));
-        this.extractor = new ClaimExtractor(List.ofAll(config.getRequiredClaims()), List
+        this.extractor = new DecodedJWTClaimExtractor(List.ofAll(config.getRequiredClaims()), List
             .ofAll(config.getNamespaces())
             .append(""));
         this.collector = new HierarchicalClaimCollector();
@@ -41,7 +41,7 @@ public class WrappedJWTExtractor {
         config.jwtVerifier().ifPresent(v -> log.info("use JWT verifier {}", v));
     }
 
-    public JWTClaims extract(String tokenString) {
+    public JWTClaims extractClaims(String tokenString) {
         List<JWTClaim> claims = List.empty();
 
         val stack = new Stack<String>();

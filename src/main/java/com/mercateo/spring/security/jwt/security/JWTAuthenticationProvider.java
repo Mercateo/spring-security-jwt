@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.auth0.jwt.JWT;
 import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
 import com.mercateo.spring.security.jwt.token.exception.TokenException;
-import com.mercateo.spring.security.jwt.token.extractor.WrappedJWTExtractor;
+import com.mercateo.spring.security.jwt.token.extractor.HierarchicalJWTClaimExtractor;
 import com.mercateo.spring.security.jwt.token.result.JWTClaim;
 import com.mercateo.spring.security.jwt.token.result.JWTClaims;
 
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class JWTAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
-    private final WrappedJWTExtractor wrappedJWTExtractor;
+    private final HierarchicalJWTClaimExtractor wrappedJWTExtractor;
 
     @Override
     public boolean supports(Class<?> authentication) {
@@ -41,7 +41,7 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
 
         final JWTClaims claims;
         try {
-            claims = wrappedJWTExtractor.extract(tokenString);
+            claims = wrappedJWTExtractor.extractClaims(tokenString);
         } catch (TokenException e) {
             throw new InvalidTokenException("filed to extract token", e);
         }

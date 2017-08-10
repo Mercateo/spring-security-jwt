@@ -10,7 +10,7 @@ import java.util.Optional;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
 import com.mercateo.spring.security.jwt.token.exception.MissingClaimException;
-import com.mercateo.spring.security.jwt.token.extractor.WrappedJWTExtractor;
+import com.mercateo.spring.security.jwt.token.extractor.HierarchicalJWTClaimExtractor;
 import com.mercateo.spring.security.jwt.security.verifier.JWKProvider;
 import com.mercateo.spring.security.jwt.token.keyset.JWTKeyset;
 import com.mercateo.spring.security.jwt.security.verifier.TestJWTSecurityConfiguration;
@@ -34,7 +34,7 @@ import lombok.val;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestJWTSecurityConfiguration.class, JWTSecurityConfiguration.class })
-public class WrappedJWTExtractorTest {
+public class HierarchicalJWTClaimExtractorTest {
 
     public static final String KEY_ID = "0815";
 
@@ -42,7 +42,7 @@ public class WrappedJWTExtractorTest {
     private Optional<JWTSecurityConfig> securityConfig;
 
     @Autowired
-    private WrappedJWTExtractor uut;
+    private HierarchicalJWTClaimExtractor uut;
 
     private Algorithm algorithm;
 
@@ -72,7 +72,7 @@ public class WrappedJWTExtractorTest {
             .sign(algorithm);
         when(jwks.getKeysetForId(KEY_ID)).thenReturn(Try.success(jwk));
 
-        val claims = uut.extract(tokenString);
+        val claims = uut.extractClaims(tokenString);
 
         val claimsByName = claims.claims();
         assertThat(claimsByName.keySet()).containsExactlyInAnyOrder("scope", "foo");
@@ -94,7 +94,7 @@ public class WrappedJWTExtractorTest {
                 .sign(algorithm);
         when(jwks.getKeysetForId(KEY_ID)).thenReturn(Try.success(jwk));
 
-        val claims = uut.extract(tokenString);
+        val claims = uut.extractClaims(tokenString);
 
         val claimsByName = claims.claims();
         assertThat(claims.claims().keySet()).containsExactlyInAnyOrder("scope", "foo");
@@ -123,7 +123,7 @@ public class WrappedJWTExtractorTest {
             .sign(Algorithm.none());
         when(jwks.getKeysetForId(KEY_ID)).thenReturn(Try.success(jwk));
 
-        val claims = uut.extract(tokenString);
+        val claims = uut.extractClaims(tokenString);
 
         val claimsByName = claims.claims();
         assertThat(claimsByName.keySet()).containsExactlyInAnyOrder("scope", "foo");
@@ -148,7 +148,7 @@ public class WrappedJWTExtractorTest {
     public void shouldFailWithoutSignedToken() {
         final String tokenString = JWT.create().sign(Algorithm.none());
 
-        assertThatThrownBy(() -> uut.extract(tokenString)) //
+        assertThatThrownBy(() -> uut.extractClaims(tokenString)) //
             .isInstanceOf(MissingSignatureException.class)
             .hasMessage("at least one part of the token should be signed");
     }
@@ -163,7 +163,7 @@ public class WrappedJWTExtractorTest {
                 .sign(algorithm);
         when(jwks.getKeysetForId(KEY_ID)).thenReturn(Try.success(jwk));
 
-        assertThatThrownBy(() -> uut.extract(tokenString)) //
+        assertThatThrownBy(() -> uut.extractClaims(tokenString)) //
                 .isInstanceOf(MissingClaimException.class)
                 .hasMessage("missing required claim(s): foo");
     }
@@ -181,7 +181,7 @@ public class WrappedJWTExtractorTest {
                 .sign(algorithm);
         when(jwks.getKeysetForId(KEY_ID)).thenReturn(Try.success(jwk));
 
-        assertThatThrownBy(() -> uut.extract(tokenString))
+        assertThatThrownBy(() -> uut.extractClaims(tokenString))
                 .isInstanceOf(InvalidTokenException.class)
                 .hasMessage("could not verify token")
                 .hasCauseInstanceOf(TokenExpiredException.class);

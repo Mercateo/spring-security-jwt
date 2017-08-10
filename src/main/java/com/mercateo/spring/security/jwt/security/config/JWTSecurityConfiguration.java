@@ -19,7 +19,7 @@ import com.mercateo.spring.security.jwt.security.JWTAuthenticationEntryPoint;
 import com.mercateo.spring.security.jwt.security.JWTAuthenticationProvider;
 import com.mercateo.spring.security.jwt.security.JWTAuthenticationSuccessHandler;
 import com.mercateo.spring.security.jwt.security.JWTAuthenticationTokenFilter;
-import com.mercateo.spring.security.jwt.token.extractor.WrappedJWTExtractor;
+import com.mercateo.spring.security.jwt.token.extractor.HierarchicalJWTClaimExtractor;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +41,8 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    WrappedJWTExtractor wrappedVerifier() {
-        return new WrappedJWTExtractor(jwtSecurityConfig());
+    HierarchicalJWTClaimExtractor wrappedVerifier() {
+        return new HierarchicalJWTClaimExtractor(jwtSecurityConfig());
     }
 
     private JWTSecurityConfig jwtSecurityConfig() {
@@ -63,7 +63,7 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public JWTAuthenticationProvider jwtAuthenticationProvider(WrappedJWTExtractor wrappedJWTExtractor) {
+    public JWTAuthenticationProvider jwtAuthenticationProvider(HierarchicalJWTClaimExtractor wrappedJWTExtractor) {
         return new JWTAuthenticationProvider(wrappedJWTExtractor);
     }
 

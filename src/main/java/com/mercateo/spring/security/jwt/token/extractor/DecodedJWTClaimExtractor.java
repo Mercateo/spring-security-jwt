@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.val;
 
 @AllArgsConstructor
-class ClaimExtractor {
+class DecodedJWTClaimExtractor {
 
     private final List<String> requiredClaims;
 
