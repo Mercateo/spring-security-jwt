@@ -13,10 +13,10 @@ import org.springframework.security.core.GrantedAuthority;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
+import com.mercateo.spring.security.jwt.token.claim.JWTClaims;
 import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
-import com.mercateo.spring.security.jwt.token.extractor.HierarchicalJWTClaimsExtractor;
-import com.mercateo.spring.security.jwt.token.result.JWTClaim;
-import com.mercateo.spring.security.jwt.token.result.JWTClaims;
+import com.mercateo.spring.security.jwt.token.extractor.ValidatingHierarchicalClaimsExtractor;
 
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
@@ -26,7 +26,7 @@ import lombok.val;
 public class JWTAuthenticationProviderTest {
 
     @Mock
-    private HierarchicalJWTClaimsExtractor hierarchicalJWTClaimsExtractor;
+    private ValidatingHierarchicalClaimsExtractor hierarchicalJWTClaimsExtractor;
 
     @InjectMocks
     private JWTAuthenticationProvider uut;

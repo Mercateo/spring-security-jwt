@@ -2,16 +2,14 @@ package com.mercateo.spring.security.jwt.token.extractor;
 
 import java.util.Optional;
 
-import com.auth0.jwt.JWT;
-import com.mercateo.spring.security.jwt.token.result.JWTClaim;
-import com.mercateo.spring.security.jwt.token.result.JWTClaims;
+import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
 
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 
-class HierarchicalClaimsWrapper {
+class InnerClaimsWrapper {
 
-    Map<String, JWTClaim> wrapHierarchicalClaims(List<JWTClaim> claims) {
+    Map<String, JWTClaim> wrapInnerClaims(List<JWTClaim> claims) {
         return claims.groupBy(JWTClaim::name).mapValues(this::wrapGroupedClaims);
     }
 
