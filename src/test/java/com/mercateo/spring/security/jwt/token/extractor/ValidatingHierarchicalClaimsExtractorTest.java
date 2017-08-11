@@ -8,12 +8,13 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.mercateo.spring.security.jwt.security.config.JWTSecurityConfig;
 import com.mercateo.spring.security.jwt.security.config.JWTSecurityConfiguration;
 import com.mercateo.spring.security.jwt.JWKProvider;
+import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
+import com.mercateo.spring.security.jwt.token.claim.JWTClaims;
 import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
 import com.mercateo.spring.security.jwt.token.exception.MissingClaimException;
 import com.mercateo.spring.security.jwt.token.exception.MissingSignatureException;
 import com.mercateo.spring.security.jwt.token.keyset.JWTKeyset;
-import com.mercateo.spring.security.jwt.token.result.JWTClaim;
-import com.mercateo.spring.security.jwt.token.result.JWTClaims;
+
 import io.vavr.control.Try;
 import lombok.val;
 import org.junit.Before;
@@ -33,8 +34,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { HierarchicalJWTClaimsExtractorTest.class, JWTSecurityConfiguration.class })
-public class HierarchicalJWTClaimsExtractorTest {
+@ContextConfiguration(classes = { ValidatingHierarchicalClaimsExtractorTest.class, JWTSecurityConfiguration.class })
+public class ValidatingHierarchicalClaimsExtractorTest {
 
     public static final String KEY_ID = "0815";
 
@@ -42,7 +43,7 @@ public class HierarchicalJWTClaimsExtractorTest {
     private Optional<JWTSecurityConfig> securityConfig;
 
     @Autowired
-    private HierarchicalJWTClaimsExtractor uut;
+    private ValidatingHierarchicalClaimsExtractor uut;
 
     private Algorithm algorithm;
 

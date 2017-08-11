@@ -7,10 +7,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.auth0.jwt.JWT;
+import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
+import com.mercateo.spring.security.jwt.token.claim.JWTClaims;
 import com.mercateo.spring.security.jwt.token.exception.TokenException;
-import com.mercateo.spring.security.jwt.token.extractor.HierarchicalJWTClaimsExtractor;
-import com.mercateo.spring.security.jwt.token.result.JWTClaim;
-import com.mercateo.spring.security.jwt.token.result.JWTClaims;
+import com.mercateo.spring.security.jwt.token.extractor.ValidatingHierarchicalClaimsExtractor;
 
 import io.vavr.collection.List;
 import lombok.AllArgsConstructor;
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class JWTAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
-    private final HierarchicalJWTClaimsExtractor hierarchicalJWTClaimsExtractor;
+    private final ValidatingHierarchicalClaimsExtractor hierarchicalJWTClaimsExtractor;
 
     @Override
     public boolean supports(Class<?> authentication) {

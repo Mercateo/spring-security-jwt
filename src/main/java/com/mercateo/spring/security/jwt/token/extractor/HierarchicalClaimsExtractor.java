@@ -3,7 +3,7 @@ package com.mercateo.spring.security.jwt.token.extractor;
 import java.util.Stack;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.mercateo.spring.security.jwt.token.result.JWTClaim;
+import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
 
 import io.vavr.collection.List;
 import lombok.val;

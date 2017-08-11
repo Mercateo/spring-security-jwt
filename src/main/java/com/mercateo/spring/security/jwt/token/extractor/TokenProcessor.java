@@ -15,7 +15,7 @@ class TokenProcessor {
 
     void memoizePossiblyWrappedToken(DecodedJWT token, Consumer<String> tokenStringConsumer) {
         Option
-            .of(token.getClaim(HierarchicalJWTClaimsExtractor.WRAPPED_TOKEN_KEY)) //
+            .of(token.getClaim(ValidatingHierarchicalClaimsExtractor.WRAPPED_TOKEN_KEY)) //
             .filter(claim -> !claim.isNull())
             .map(Claim::asString)
             .forEach(tokenStringConsumer);

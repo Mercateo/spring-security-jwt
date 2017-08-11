@@ -1,8 +1,8 @@
 package com.mercateo.spring.security.jwt.token.extractor;
 
+import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
 import com.mercateo.spring.security.jwt.token.exception.MissingClaimException;
 import com.mercateo.spring.security.jwt.token.exception.MissingSignatureException;
-import com.mercateo.spring.security.jwt.token.result.JWTClaim;
 
 import io.vavr.collection.HashSet;
 import io.vavr.collection.List;

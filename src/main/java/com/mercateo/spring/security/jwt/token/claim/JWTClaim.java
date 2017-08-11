@@ -1,8 +1,10 @@
-package com.mercateo.spring.security.jwt.token.result;
+package com.mercateo.spring.security.jwt.token.claim;
 
 import java.util.Optional;
 
 import org.immutables.value.Value;
+
+import com.mercateo.spring.security.jwt.token.claim.ImmutableJWTClaim;
 
 @Value.Immutable
 public interface JWTClaim {

@@ -1,7 +1,8 @@
 package com.mercateo.spring.security.jwt.security;
 
 import com.mercateo.spring.security.jwt.security.JWTPrincipal;
-import com.mercateo.spring.security.jwt.token.result.JWTClaim;
+import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
+
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
