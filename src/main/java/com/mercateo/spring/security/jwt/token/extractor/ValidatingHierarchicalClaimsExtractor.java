@@ -59,4 +59,8 @@ public class ValidatingHierarchicalClaimsExtractor {
             .build();
     }
 
+    public boolean hasJWTVerifier() {
+        return jwtVerifier.isDefined();
+    }
+
 }

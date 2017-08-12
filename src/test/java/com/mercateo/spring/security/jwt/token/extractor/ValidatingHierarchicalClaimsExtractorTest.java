@@ -41,7 +41,6 @@ public class ValidatingHierarchicalClaimsExtractorTest {
 
     private JWTKeyset jwks;
 
-    @Bean
     public JWTSecurityConfig securityConfig() {
         return JWTSecurityConfig
             .builder()
