@@ -1,6 +1,7 @@
 package com.mercateo.spring.security.jwt.token.extractor;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.mercateo.spring.security.jwt.security.config.JWTSecurityConfig;
 import com.mercateo.spring.security.jwt.token.claim.JWTClaims;
 
@@ -26,9 +27,12 @@ public class ValidatingHierarchicalClaimsExtractor {
 
     private final List<String> namespaces;
 
+    private final Option<JWTVerifier> jwtVerifier;
+
     public ValidatingHierarchicalClaimsExtractor(JWTSecurityConfig config) {
         this.tokenProcessor = new TokenProcessor();
-        this.verifier = new TokenVerifier(Option.ofOptional(config.jwtVerifier()));
+        jwtVerifier = Option.ofOptional(config.jwtVerifier());
+        this.verifier = new TokenVerifier(jwtVerifier);
         requiredClaims = List.ofAll(config.getRequiredClaims());
         namespaces = List.ofAll(config.getNamespaces()).append("");
         this.claimsValidator = new ClaimsValidator(requiredClaims);
@@ -42,7 +46,9 @@ public class ValidatingHierarchicalClaimsExtractor {
 
         val claims = extractor.extractClaims(tokenString);
 
-        claimsValidator.ensureAtLeastOneValidatedToken(extractor.getVerifiedTokenCount());
+        if (jwtVerifier.isDefined()) {
+            claimsValidator.ensureAtLeastOneVerifiedToken(extractor.getVerifiedTokenCount());
+        }
         claimsValidator.ensurePresenceOfRequiredClaims(claims);
 
         return JWTClaims

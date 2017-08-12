@@ -15,7 +15,7 @@ class ClaimsValidator {
         this.requiredClaims = requiredClaims;
     }
 
-    void ensureAtLeastOneValidatedToken(int verifiedCount) {
+    void ensureAtLeastOneVerifiedToken(int verifiedCount) {
         if (verifiedCount == 0) {
             throw new MissingSignatureException("at least one part of the token should be signed");
         }
