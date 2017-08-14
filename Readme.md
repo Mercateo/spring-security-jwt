@@ -19,7 +19,7 @@ public class MyConfiguration {
             .addAnonymousPaths("/admin/app_health")
             .jwtKeyset(mock(JWTKeyset.class))
             .addNamespaces("https://test.org/")
-            .addRequiredClaims("scope", "hierarchicalClaimsCollector")
+            .addRequiredClaims("scope", "foo")
             .build();
     }
 }
@@ -30,8 +30,8 @@ Access the principal object to get claims from the token:
 ```
         final JWTPrincipal principal = JWTPrincipal.fromContext();
 
-        log.info("principal hierarchicalClaimsCollector {} with scopes '{}'",
-              principal.getClaim("hierarchicalClaimsCollector"),
+        log.info("principal foo {} with scopes '{}'",
+              principal.getClaim("foo"),
               principal.getClaim("scope"));
 ```
 
