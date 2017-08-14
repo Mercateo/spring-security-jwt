@@ -15,6 +15,8 @@ public class ValidatingHierarchicalClaimsExtractor {
 
     public static final String WRAPPED_TOKEN_KEY = "jwt";
 
+    public static final List<String> AUTHORIZATION_CLAIMS = List.of("scope", "authorization");
+
     private final TokenProcessor tokenProcessor;
 
     private final TokenVerifier verifier;
@@ -42,7 +44,8 @@ public class ValidatingHierarchicalClaimsExtractor {
     }
 
     public JWTClaims extractClaims(String tokenString) {
-        val extractor = new HierarchicalClaimsExtractor(tokenProcessor, verifier, requiredClaims, namespaces);
+        val extractor = new HierarchicalClaimsExtractor(tokenProcessor, verifier, requiredClaims.appendAll(
+                AUTHORIZATION_CLAIMS), namespaces);
 
         val claims = extractor.extractClaims(tokenString);
 

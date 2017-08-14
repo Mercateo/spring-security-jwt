@@ -47,7 +47,7 @@ public class ValidatingHierarchicalClaimsExtractorTest {
             .addAnonymousPaths("/admin/app_health")
             .jwtKeyset(mock(JWTKeyset.class))
             .addNamespaces("https://test.org/")
-            .addRequiredClaims("scope", "foo")
+            .addRequiredClaims("foo")
             .build();
     }
 
