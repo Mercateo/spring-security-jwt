@@ -35,3 +35,6 @@ Access the principal object to get claims from the token:
               principal.getClaim("scope"));
 ```
 
+## Roles / scopes integration
+
+The content of the scope claim is parsed into the list of granted authorities.

@@ -5,7 +5,9 @@ import com.auth0.jwt.JWTVerifier;
 import com.mercateo.spring.security.jwt.security.config.JWTSecurityConfig;
 import com.mercateo.spring.security.jwt.token.claim.JWTClaims;
 
+import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
+import io.vavr.collection.Set;
 import io.vavr.control.Option;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +27,9 @@ public class ValidatingHierarchicalClaimsExtractor {
 
     private final ClaimsValidator claimsValidator;
 
-    private final List<String> requiredClaims;
+    private final Set<String> claims;
+
+    private final Set<String> requiredClaims;
 
     private final List<String> namespaces;
 
@@ -35,7 +39,8 @@ public class ValidatingHierarchicalClaimsExtractor {
         this.tokenProcessor = new TokenProcessor();
         jwtVerifier = Option.ofOptional(config.jwtVerifier());
         this.verifier = new TokenVerifier(jwtVerifier);
-        requiredClaims = List.ofAll(config.getRequiredClaims());
+        requiredClaims = HashSet.ofAll(config.getRequiredClaims());
+        claims = HashSet.ofAll(config.getOptionalClaims()).addAll(AUTHORIZATION_CLAIMS).addAll(requiredClaims);
         namespaces = List.ofAll(config.getNamespaces()).append("");
         this.claimsValidator = new ClaimsValidator(requiredClaims);
         this.collector = new InnerClaimsWrapper();
@@ -44,8 +49,7 @@ public class ValidatingHierarchicalClaimsExtractor {
     }
 
     public JWTClaims extractClaims(String tokenString) {
-        val extractor = new HierarchicalClaimsExtractor(tokenProcessor, verifier, requiredClaims.appendAll(
-                AUTHORIZATION_CLAIMS), namespaces);
+        val extractor = new HierarchicalClaimsExtractor(tokenProcessor, verifier, claims, namespaces);
 
         val claims = extractor.extractClaims(tokenString);
 

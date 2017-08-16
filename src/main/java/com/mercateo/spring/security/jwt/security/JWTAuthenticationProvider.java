@@ -43,7 +43,15 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
         try {
             claims = hierarchicalJWTClaimsExtractor.extractClaims(tokenString);
         } catch (TokenException e) {
-            throw new InvalidTokenException("failed to extract token", e);
+            final String message;
+            if (e.getCause().getMessage() != null) {
+                message = e.getCause().getMessage();
+            } else if (e.getMessage() != null) {
+                message = e.getMessage();
+            } else  {
+                message = "failed to extract token";
+            }
+            throw new InvalidTokenException(message, e);
         }
 
         val token = JWT.decode(tokenString);

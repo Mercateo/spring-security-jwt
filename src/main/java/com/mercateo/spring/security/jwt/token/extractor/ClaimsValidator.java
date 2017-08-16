@@ -4,15 +4,16 @@ import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
 import com.mercateo.spring.security.jwt.token.exception.MissingClaimException;
 import com.mercateo.spring.security.jwt.token.exception.MissingSignatureException;
 
+import io.vavr.Value;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
 import lombok.val;
 
 class ClaimsValidator {
-    private final List<String> requiredClaims;
+    private final Value<String> claims;
 
-    ClaimsValidator(List<String> requiredClaims) {
-        this.requiredClaims = requiredClaims;
+    ClaimsValidator(Value<String> claims) {
+        this.claims = claims;
     }
 
     void ensureAtLeastOneVerifiedToken(int verifiedCount) {
@@ -23,7 +24,7 @@ class ClaimsValidator {
 
     void ensurePresenceOfRequiredClaims(List<JWTClaim> claims) {
         val existingClaimNames = claims.groupBy(JWTClaim::name).keySet();
-        val requiredClaimNames = HashSet.ofAll(requiredClaims);
+        val requiredClaimNames = HashSet.ofAll(this.claims);
 
         val missingRequiredClaimNames = requiredClaimNames.removeAll(existingClaimNames);
 

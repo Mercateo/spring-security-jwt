@@ -85,7 +85,7 @@ public class JWTAuthenticationProviderTest {
     public void throwsInvalidTokenExceptionAtErrorDuringExtract() {
         val tokenString = "<token>";
 
-        val exception = new InvalidTokenException("foo", new RuntimeException());
+        val exception = new InvalidTokenException(null, new RuntimeException());
         when(hierarchicalJWTClaimsExtractor.extractClaims(tokenString)).thenThrow(exception);
 
         val tokenContainer = new JWTAuthenticationToken(tokenString);

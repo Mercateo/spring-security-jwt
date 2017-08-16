@@ -5,7 +5,9 @@ import java.util.Stack;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
 
+import io.vavr.Value;
 import io.vavr.collection.List;
+import io.vavr.collection.Set;
 import lombok.val;
 
 class HierarchicalClaimsExtractor {
@@ -14,7 +16,7 @@ class HierarchicalClaimsExtractor {
 
     private final TokenVerifier verifier;
 
-    private final List<String> requiredClaims;
+    private final List<String> claims;
 
     private final List<String> namespaces;
 
@@ -22,11 +24,11 @@ class HierarchicalClaimsExtractor {
 
     private int verifiedTokenCount;
 
-    HierarchicalClaimsExtractor(TokenProcessor tokenProcessor, TokenVerifier verifier, List<String> requiredClaims,
+    HierarchicalClaimsExtractor(TokenProcessor tokenProcessor, TokenVerifier verifier, Value<String> claims,
             List<String> namespaces) {
         this.tokenProcessor = tokenProcessor;
         this.verifier = verifier;
-        this.requiredClaims = requiredClaims;
+        this.claims = claims.toList();
         this.namespaces = namespaces;
 
         depth = 0;
@@ -54,7 +56,7 @@ class HierarchicalClaimsExtractor {
 
     private List<JWTClaim> extractClaims(DecodedJWT token, boolean verified) {
 
-        return requiredClaims.flatMap(claimName -> namespaces
+        return claims.toList().flatMap(claimName -> namespaces
             .map(namespace -> namespace + claimName)
             .map(token::getClaim)
             .find(claim -> !claim.isNull())

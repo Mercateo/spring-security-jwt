@@ -30,6 +30,11 @@ public interface JWTSecurityConfig {
     }
 
     @Value.Default
+    default List<String> getOptionalClaims() {
+        return Collections.emptyList();
+    }
+
+    @Value.Default
     default List<String> getNamespaces() {
         return Collections.emptyList();
     }
