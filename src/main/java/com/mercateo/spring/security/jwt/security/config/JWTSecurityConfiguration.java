@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -80,25 +81,24 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
             .disable()
 
             // allow
-            .authorizeRequests()
-            .antMatchers(unauthenticatedPaths)
-            .permitAll()
+                .authorizeRequests()
+                .antMatchers(unauthenticatedPaths)
+                .permitAll()
             .and()
-
             // enable authorization
-            .authorizeRequests()
-            .anyRequest()
-            .authenticated()
+                .authorizeRequests()
+                .anyRequest()
+                .authenticated()
             .and()
-            .exceptionHandling()
-            .authenticationEntryPoint(jwtAuthenticationEntryPoint())
+                .exceptionHandling()
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint())
             .and()
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
             // Custom JWT based security filter
             .and()
-            .addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class)
 
             // disable page caching
             .headers()
@@ -108,11 +108,12 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring().antMatchers(getUnauthenticatedPaths());
+        web.ignoring().antMatchers(HttpMethod.OPTIONS, "/**");
     }
 
     private String[] getUnauthenticatedPaths() {
-        return config.map(JWTSecurityConfig::anonymousPaths).map(list -> list.stream().toArray(String[]::new)).orElse(
-                new String[0]);
+        return config.map(JWTSecurityConfig::anonymousPaths).map(list -> list.toArray(new String[0]))
+                .orElse(new String[0]);
     }
 
 }
