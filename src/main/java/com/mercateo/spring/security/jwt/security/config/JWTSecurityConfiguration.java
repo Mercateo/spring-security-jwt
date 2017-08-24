@@ -116,8 +116,7 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     private String[] getUnauthenticatedPaths() {
-        return config.map(JWTSecurityConfig::anonymousPaths).map(list -> list.toArray(new String[0]))
+        return config.map(JWTSecurityConfig::anonymousPaths).map(list -> list.stream().toArray(String[]::new))
                 .orElse(new String[0]);
     }
-
 }
