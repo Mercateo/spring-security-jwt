@@ -18,6 +18,7 @@ public class MyConfiguration {
         return JWTSecurityConfig
             .builder()
             .addAnonymousPaths("/admin/app_health")
+            .addAnonymousMethods(HttpMethod.OPTIONS)
             .jwtKeyset(mock(JWTKeyset.class))
             .addNamespaces("https://test.org/")
             .addRequiredClaims("scope", "foo")
