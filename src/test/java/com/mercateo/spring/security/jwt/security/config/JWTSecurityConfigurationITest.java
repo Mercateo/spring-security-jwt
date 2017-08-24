@@ -76,7 +76,7 @@ public class JWTSecurityConfigurationITest {
     static class TestPathConfiguration {
         @Bean
         public JWTSecurityConfig securityConfig() {
-            return JWTSecurityConfig.builder().anonymousPaths(Lists.newArrayList("/anonymous")).build();
+            return JWTSecurityConfig.builder().addAnonymousPaths("/anonymous").build();
         }
     }
 

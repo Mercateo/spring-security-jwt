@@ -107,8 +107,12 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers(getUnauthenticatedPaths());
-        web.ignoring().antMatchers(HttpMethod.OPTIONS, "/**");
+        web
+            .ignoring()
+            .antMatchers(getUnauthenticatedPaths()) //
+            .and() //
+            .ignoring()
+            .antMatchers(HttpMethod.OPTIONS, "/**");
     }
 
     private String[] getUnauthenticatedPaths() {
