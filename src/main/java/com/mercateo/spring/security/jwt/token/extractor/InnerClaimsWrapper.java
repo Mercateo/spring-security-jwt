@@ -1,7 +1,5 @@
 package com.mercateo.spring.security.jwt.token.extractor;
 
-import java.util.Optional;
-
 import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
 
 import io.vavr.collection.List;

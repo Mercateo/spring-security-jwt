@@ -31,7 +31,7 @@ public class ValidatingHierarchicalClaimsExtractor {
 
     private final Set<String> requiredClaims;
 
-    private final List<String> namespaces;
+    private final Set<String> namespaces;
 
     private final Option<JWTVerifier> jwtVerifier;
 
@@ -39,9 +39,9 @@ public class ValidatingHierarchicalClaimsExtractor {
         this.tokenProcessor = new TokenProcessor();
         jwtVerifier = config.jwtVerifier();
         this.verifier = new TokenVerifier(jwtVerifier);
-        requiredClaims = HashSet.ofAll(config.getRequiredClaims());
-        claims = HashSet.ofAll(config.getOptionalClaims()).addAll(AUTHORIZATION_CLAIMS).addAll(requiredClaims);
-        namespaces = List.ofAll(config.getNamespaces()).append("");
+        requiredClaims = config.getRequiredClaims();
+        claims = config.getOptionalClaims().addAll(AUTHORIZATION_CLAIMS).addAll(requiredClaims);
+        namespaces = config.getNamespaces().add("");
         this.claimsValidator = new ClaimsValidator(requiredClaims);
         this.collector = new InnerClaimsWrapper();
 

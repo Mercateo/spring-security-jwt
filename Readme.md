@@ -19,9 +19,9 @@ public class MyConfiguration {
             .builder()
             .addAnonymousPaths("/admin/app_health")
             .addAnonymousMethods(HttpMethod.OPTIONS)
-            .jwtKeyset(mock(JWTKeyset.class))
+            .setValueJwtKeyset(mock(JWTKeyset.class))
             .addNamespaces("https://test.org/")
-            .addRequiredClaims("scope", "foo")
+            .addRequiredClaims("foo", "bar")
             .build();
     }
 }

@@ -16,19 +16,19 @@ class HierarchicalClaimsExtractor {
 
     private final TokenVerifier verifier;
 
-    private final List<String> claims;
+    private final Set<String> claims;
 
-    private final List<String> namespaces;
+    private final Set<String> namespaces;
 
     private int depth;
 
     private int verifiedTokenCount;
 
-    HierarchicalClaimsExtractor(TokenProcessor tokenProcessor, TokenVerifier verifier, Value<String> claims,
-            List<String> namespaces) {
+    HierarchicalClaimsExtractor(TokenProcessor tokenProcessor, TokenVerifier verifier, Set<String> claims,
+            Set<String> namespaces) {
         this.tokenProcessor = tokenProcessor;
         this.verifier = verifier;
-        this.claims = claims.toList();
+        this.claims = claims;
         this.namespaces = namespaces;
 
         depth = 0;

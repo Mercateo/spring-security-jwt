@@ -1,12 +1,9 @@
 package com.mercateo.spring.security.jwt.token.claim;
 
-import java.util.Optional;
+import org.immutables.value.Value;
+import org.immutables.vavr.encodings.VavrEncodingEnabled;
 
 import io.vavr.control.Option;
-import org.immutables.value.Value;
-
-import com.mercateo.spring.security.jwt.token.claim.ImmutableJWTClaim;
-import org.immutables.vavr.encodings.VavrEncodingEnabled;
 
 @Value.Immutable
 @VavrEncodingEnabled

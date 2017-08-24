@@ -1,7 +1,6 @@
 package com.mercateo.spring.security.jwt.security;
 
 import java.util.Collection;
-import java.util.Optional;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +11,7 @@ import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
 
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import io.vavr.control.Option;
 
 public class JWTPrincipal implements UserDetails {
 
@@ -82,8 +82,8 @@ public class JWTPrincipal implements UserDetails {
         return null;
     }
 
-    public Optional<JWTClaim> getClaim(String key) {
-        return claims.get(key).toJavaOptional();
+    public Option<JWTClaim> getClaim(String key) {
+        return claims.get(key);
     }
 
     public static JWTPrincipal fromContext() {

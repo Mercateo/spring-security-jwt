@@ -6,12 +6,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
-import java.util.Optional;
 
-import io.vavr.control.Option;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.context.annotation.Bean;
 
 import com.auth0.jwk.Jwk;
 import com.auth0.jwt.JWT;
@@ -27,6 +24,7 @@ import com.mercateo.spring.security.jwt.token.exception.MissingClaimException;
 import com.mercateo.spring.security.jwt.token.exception.MissingSignatureException;
 import com.mercateo.spring.security.jwt.token.keyset.JWTKeyset;
 
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.val;
 
