@@ -37,7 +37,7 @@ public class ValidatingHierarchicalClaimsExtractor {
 
     public ValidatingHierarchicalClaimsExtractor(JWTSecurityConfig config) {
         this.tokenProcessor = new TokenProcessor();
-        jwtVerifier = Option.ofOptional(config.jwtVerifier());
+        jwtVerifier = config.jwtVerifier();
         this.verifier = new TokenVerifier(jwtVerifier);
         requiredClaims = HashSet.ofAll(config.getRequiredClaims());
         claims = HashSet.ofAll(config.getOptionalClaims()).addAll(AUTHORIZATION_CLAIMS).addAll(requiredClaims);
@@ -45,7 +45,7 @@ public class ValidatingHierarchicalClaimsExtractor {
         this.claimsValidator = new ClaimsValidator(requiredClaims);
         this.collector = new InnerClaimsWrapper();
 
-        config.jwtVerifier().ifPresent(v -> log.info("use JWT verifier {}", v));
+        config.jwtVerifier().forEach(v -> log.info("use JWT verifier {}", v));
     }
 
     public JWTClaims extractClaims(String tokenString) {

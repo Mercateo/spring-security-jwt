@@ -2,11 +2,14 @@ package com.mercateo.spring.security.jwt.token.claim;
 
 import java.util.Optional;
 
+import io.vavr.control.Option;
 import org.immutables.value.Value;
 
 import com.mercateo.spring.security.jwt.token.claim.ImmutableJWTClaim;
+import org.immutables.vavr.encodings.VavrEncodingEnabled;
 
 @Value.Immutable
+@VavrEncodingEnabled
 public interface JWTClaim {
     String name();
 
@@ -22,7 +25,7 @@ public interface JWTClaim {
         return false;
     }
 
-    Optional<JWTClaim> innerClaim();
+    Option<JWTClaim> innerClaim();
 
     @Value.Default
     default int depth() {

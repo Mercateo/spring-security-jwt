@@ -1,43 +1,35 @@
 package com.mercateo.spring.security.jwt.security.config;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import com.mercateo.spring.security.jwt.security.verifier.JWTVerifierFactory;
+import io.vavr.collection.List;
 import org.immutables.value.Value;
+import org.immutables.vavr.encodings.VavrEncodingEnabled;
 
 import com.auth0.jwt.JWTVerifier;
+import com.mercateo.spring.security.jwt.security.verifier.JWTVerifierFactory;
 import com.mercateo.spring.security.jwt.token.keyset.JWTKeyset;
 
-@Value.Immutable
-public interface JWTSecurityConfig {
-    @Value.Default
-    default List<String> anonymousPaths() {
-        return Collections.emptyList();
-    }
+import io.vavr.control.Option;
+import org.springframework.http.HttpMethod;
 
-    Optional<JWTKeyset> jwtKeyset();
+@Value.Immutable
+@VavrEncodingEnabled
+public interface JWTSecurityConfig {
+    List<String> anonymousPaths();
+
+    List<HttpMethod> anonymousMethods();
+
+    Option<JWTKeyset> jwtKeyset();
 
     @Value.Derived
-    default Optional<JWTVerifier> jwtVerifier() {
+    default Option<JWTVerifier> jwtVerifier() {
         return jwtKeyset().map(JWTVerifierFactory::new).map(JWTVerifierFactory::create);
     }
 
-    @Value.Default
-    default List<String> getRequiredClaims() {
-        return Collections.emptyList();
-    }
+    List<String> getRequiredClaims();
 
-    @Value.Default
-    default List<String> getOptionalClaims() {
-        return Collections.emptyList();
-    }
+    List<String> getOptionalClaims();
 
-    @Value.Default
-    default List<String> getNamespaces() {
-        return Collections.emptyList();
-    }
+    List<String> getNamespaces();
 
     static ImmutableJWTSecurityConfig.Builder builder() {
         return ImmutableJWTSecurityConfig.builder();

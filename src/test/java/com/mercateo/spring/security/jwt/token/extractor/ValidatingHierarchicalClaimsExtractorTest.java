@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.util.Date;
 import java.util.Optional;
 
+import io.vavr.control.Option;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.annotation.Bean;
@@ -45,7 +46,7 @@ public class ValidatingHierarchicalClaimsExtractorTest {
         return JWTSecurityConfig
             .builder()
             .addAnonymousPaths("/admin/app_health")
-            .jwtKeyset(mock(JWTKeyset.class))
+            .setValueJwtKeyset(mock(JWTKeyset.class))
             .addNamespaces("https://test.org/")
             .addRequiredClaims("foo")
             .build();
@@ -59,7 +60,7 @@ public class ValidatingHierarchicalClaimsExtractorTest {
 
         val securityConfig = securityConfig();
 
-        jwks = Optional.of(securityConfig).flatMap(JWTSecurityConfig::jwtKeyset).orElseThrow(
+        jwks = Option.of(securityConfig).flatMap(JWTSecurityConfig::jwtKeyset).getOrElseThrow(
                 () -> new IllegalStateException("could not fetch jwks mock"));
 
         uut = new ValidatingHierarchicalClaimsExtractor(securityConfig);

@@ -9,5 +9,4 @@ public interface JWTAuthority extends GrantedAuthority {
     static ImmutableJWTAuthority.Builder builder() {
         return ImmutableJWTAuthority.builder();
     }
-
 }

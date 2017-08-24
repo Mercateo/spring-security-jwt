@@ -6,6 +6,7 @@ import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
 
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import io.vavr.control.Option;
 
 class InnerClaimsWrapper {
 
@@ -16,10 +17,10 @@ class InnerClaimsWrapper {
     private JWTClaim wrapGroupedClaims(List<JWTClaim> claims) {
         final List<JWTClaim> reverse = claims.reverse();
 
-        Optional<JWTClaim> innerClaim = Optional.empty();
+        Option<JWTClaim> innerClaim = Option.none();
 
         for (JWTClaim jwtClaim : reverse) {
-            innerClaim = Optional.of(JWTClaim.builder().from(jwtClaim).innerClaim(innerClaim).build());
+            innerClaim = Option.some(JWTClaim.builder().from(jwtClaim).innerClaim(innerClaim).build());
         }
 
         // noinspection ConstantConditions

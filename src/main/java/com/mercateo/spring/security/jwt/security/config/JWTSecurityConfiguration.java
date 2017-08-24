@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -107,16 +106,13 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web
-            .ignoring()
-            .antMatchers(getUnauthenticatedPaths()) //
-            .and() //
-            .ignoring()
-            .antMatchers(HttpMethod.OPTIONS, "/**");
+        web.ignoring().antMatchers(getUnauthenticatedPaths());
+
+        config.ifPresent(config -> config.anonymousMethods().forEach(method -> web.ignoring().antMatchers(method)));
     }
 
     private String[] getUnauthenticatedPaths() {
-        return config.map(JWTSecurityConfig::anonymousPaths).map(list -> list.stream().toArray(String[]::new))
+        return config.map(JWTSecurityConfig::anonymousPaths).map(list -> list.toJavaArray(String.class))
                 .orElse(new String[0]);
     }
 }
