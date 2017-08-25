@@ -9,8 +9,10 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.RSAKeyProvider;
-
+import com.auth0.jwt.interfaces.Verification;
+import com.mercateo.spring.security.jwt.security.config.JWTSecurityConfig;
 import com.mercateo.spring.security.jwt.token.keyset.JWTKeyset;
+
 import lombok.AllArgsConstructor;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,8 @@ import sun.security.rsa.RSAPublicKeyImpl;
 @Slf4j
 public class JWTVerifierFactory {
     final JWTKeyset jwks;
+
+    final JWTSecurityConfig config;
 
     public JWTVerifier create() {
         final RSAKeyProvider rsaKeyProvider = new RSAKeyProvider() {
@@ -47,7 +51,16 @@ public class JWTVerifierFactory {
 
         val algorithm = Algorithm.RSA256(rsaKeyProvider);
 
-        return JWT.require(algorithm).acceptLeeway(1).build();
+        val verification = JWT.require(algorithm);
+
+        verification.acceptLeeway(config.getTokenLeeway());
+
+        val tokenAudiences = config.getTokenAudiences();
+        if (tokenAudiences.nonEmpty()) {
+            verification.withAudience(tokenAudiences.toJavaArray(String.class));
+        }
+
+        return verification.build();
     }
 
     private static IllegalStateException map(Throwable cause) {
