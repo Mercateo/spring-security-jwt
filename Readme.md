@@ -22,6 +22,8 @@ public class MyConfiguration {
             .setValueJwtKeyset(mock(JWTKeyset.class))
             .addNamespaces("https://test.org/")
             .addRequiredClaims("foo", "bar")
+            .addTokenAudiences("https://test.org/api")
+            .tokenLeeway(300)
             .build();
     }
 }
