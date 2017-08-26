@@ -44,7 +44,7 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
             claims = hierarchicalJWTClaimsExtractor.extractClaims(tokenString);
         } catch (TokenException e) {
             final String message;
-            if (e.getCause().getMessage() != null) {
+            if (e.getCause() != null && e.getCause().getMessage() != null) {
                 message = e.getCause().getMessage();
             } else if (e.getMessage() != null) {
                 message = e.getMessage();
