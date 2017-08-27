@@ -4,7 +4,7 @@
 
     <artifactId>spring-security-jwt</artifactId>
     <groupId>com.mercateo.spring</groupId>
-    <version>0.3.3-SNAPSHOT</version>
+    <version>0.3.3</version>
 
     <name>spring-security-jwt</name>
     <packaging>jar</packaging>
@@ -64,7 +64,7 @@
     <scm>
         <connection>scm:git:git@github.com:Mercateo/spring-security-jwt.git</connection>
         <url>https://github.com/Mercateo/spring-security-jwt.git</url>
-        <tag>HEAD</tag>
+        <tag>spring-security-jwt-0.3.3</tag>
     </scm>
 
     <properties>
