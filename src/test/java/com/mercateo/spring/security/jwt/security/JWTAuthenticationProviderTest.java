@@ -37,9 +37,9 @@ public class JWTAuthenticationProviderTest {
         val tokenContainer = new JWTAuthenticationToken(tokenString);
 
         final Map<String, JWTClaim> claimsMap = HashMap.of( //
-                "bar", JWTClaim.builder().value("baz").name("bar").build());
+                "bar", JWTClaim.builder().withValue("baz").withName("bar").build());
 
-        JWTClaims claims = JWTClaims.builder().claims(claimsMap).token(JWT.decode(tokenString)).build();
+        JWTClaims claims = JWTClaims.builder().withClaims(claimsMap).withToken(JWT.decode(tokenString)).build();
 
         when(hierarchicalJWTClaimsExtractor.extractClaims(tokenString)).thenReturn(claims);
 
@@ -57,9 +57,9 @@ public class JWTAuthenticationProviderTest {
         val tokenContainer = new JWTAuthenticationToken(tokenString);
 
         final Map<String, JWTClaim> claimsMap = HashMap.of( //
-                "scope", JWTClaim.builder().name("scope").value("foo bar").build());
+                "scope", JWTClaim.builder().withName("scope").withValue("foo bar").build());
 
-        JWTClaims claims = JWTClaims.builder().claims(claimsMap).token(JWT.decode(tokenString)).build();
+        JWTClaims claims = JWTClaims.builder().withClaims(claimsMap).withToken(JWT.decode(tokenString)).build();
         when(hierarchicalJWTClaimsExtractor.extractClaims(tokenString)).thenReturn(claims);
 
         val userDetails = uut.retrieveUser("<username>", tokenContainer);

@@ -1,5 +1,6 @@
 package com.mercateo.spring.security.jwt.token.claim;
 
+import com.mercateo.immutables.DataClass;
 import org.immutables.value.Value;
 import org.immutables.vavr.encodings.VavrEncodingEnabled;
 
@@ -8,7 +9,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import io.vavr.collection.Map;
 
 @Value.Immutable
-@VavrEncodingEnabled
+@DataClass
 public interface JWTClaims {
     DecodedJWT token();
 

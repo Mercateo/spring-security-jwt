@@ -22,7 +22,7 @@ public class JWTPrincipalTest {
     @Before
     public void setUp() throws Exception {
         Map<String, JWTClaim> claimsStringHashMap = HashMap.empty();
-        claimsStringHashMap = claimsStringHashMap.put("foo_bar", JWTClaim.builder().name("foo_bar").value("<foo_bar>").issuer("<issuer>").build());
+        claimsStringHashMap = claimsStringHashMap.put("foo_bar", JWTClaim.builder().withName("foo_bar").withValue("<foo_bar>").withIssuer("<issuer>").build());
         uut = new JWTPrincipal(123l, "<username>", "<token>", List.empty(), claimsStringHashMap);
     }
 

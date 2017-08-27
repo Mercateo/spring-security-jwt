@@ -15,15 +15,16 @@ public class MyConfiguration {
 
     @Bean
     public JWTSecurityConfig securityConfig() {
-        return JWTSecurityConfig
+        JWTSecurityConfig
             .builder()
             .addAnonymousPaths("/admin/app_health")
             .addAnonymousMethods(HttpMethod.OPTIONS)
             .setValueJwtKeyset(mock(JWTKeyset.class))
             .addNamespaces("https://test.org/")
-            .addRequiredClaims("foo", "bar")
+            .addRequiredClaims("foo")
+            .addRequiredClaims("bar")
             .addTokenAudiences("https://test.org/api")
-            .tokenLeeway(300)
+            .withTokenLeeway(300)
             .build();
     }
 }
@@ -36,7 +37,7 @@ Access the principal object to get claims from the token:
 
         log.info("principal foo {} with scopes '{}'",
               principal.getClaim("foo"),
-              principal.getClaim("scope"));
+              principal.getAuthorities());
 ```
 
 ## Roles / scopes integration

@@ -2,6 +2,7 @@ package com.mercateo.spring.security.jwt.security.verifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
@@ -27,6 +28,7 @@ import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.control.Try;
 import lombok.val;
+import org.springframework.http.HttpMethod;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JWTVerifierTest {
@@ -103,7 +105,7 @@ public class JWTVerifierTest {
     @Test
     public void verifiesExpiredTokenWithConfiguredLeeway() {
         val originalToken = addVerifiedJWTAuthHeader(-30000);
-        uut = new JWTVerifierFactory(jwks, JWTSecurityConfig.builder().tokenLeeway(35).build()).create();
+        uut = new JWTVerifierFactory(jwks, JWTSecurityConfig.builder().withTokenLeeway(35).build()).create();
 
         val jwt = uut.verify(originalToken);
 
@@ -123,6 +125,19 @@ public class JWTVerifierTest {
 
     @SafeVarargs
     private final String addVerifiedJWTAuthHeader(long expiry, Tuple2<String, String>... claims) {
+
+        JWTSecurityConfig
+                .builder()
+                .addAnonymousPaths("/admin/app_health")
+                .addAnonymousMethods(HttpMethod.OPTIONS)
+                .setValueJwtKeyset(mock(JWTKeyset.class))
+                .addNamespaces("https://test.org/")
+                .addRequiredClaims("foo")
+                .addRequiredClaims("bar")
+                .addTokenAudiences("https://test.org/api")
+                .withTokenLeeway(300)
+                .build();
+
         val now = System.currentTimeMillis() / 1000 * 1000;
         issuedAt = new Date(now);
         expiresAt = new Date(now + expiry);

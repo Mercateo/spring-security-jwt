@@ -1,10 +1,10 @@
 package com.mercateo.spring.security.jwt.security.config;
 
 import org.immutables.value.Value;
-import org.immutables.vavr.encodings.VavrEncodingEnabled;
 import org.springframework.http.HttpMethod;
 
 import com.auth0.jwt.JWTVerifier;
+import com.mercateo.immutables.DataClass;
 import com.mercateo.spring.security.jwt.security.verifier.JWTVerifierFactory;
 import com.mercateo.spring.security.jwt.token.keyset.JWTKeyset;
 
@@ -12,7 +12,7 @@ import io.vavr.collection.Set;
 import io.vavr.control.Option;
 
 @Value.Immutable
-@VavrEncodingEnabled
+@DataClass
 public interface JWTSecurityConfig {
 
     /**

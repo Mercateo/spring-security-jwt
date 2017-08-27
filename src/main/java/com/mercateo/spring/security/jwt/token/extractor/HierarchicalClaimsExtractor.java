@@ -62,11 +62,11 @@ class HierarchicalClaimsExtractor {
             .find(claim -> !claim.isNull())
             .map(claim -> (JWTClaim) JWTClaim
                 .builder()
-                .name(claimName)
-                .value(claim.asString())
-                .verified(verified)
-                .issuer(token.getIssuer())
-                .depth(depth)
+                .withName(claimName)
+                .withValue(claim.asString())
+                .withVerified(verified)
+                .withIssuer(token.getIssuer())
+                .withDepth(depth)
                 .build()));
     }
 
