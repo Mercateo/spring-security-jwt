@@ -7,6 +7,21 @@
 ## Example usage
 How to add JWT support to your project.
 
+Example Token
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJpc3MiOiJuYW1lIiwic3ViIjoic3ViamVjdCJ9.teWF_9A5bY8DCZG23AvyiSZhPVfozbFvhx01AVY-Bb0
+```
+contains payload
+```
+{
+  "foo": "bar",
+  "iss": "name",
+  "sub": "subject"
+}
+```
+see e.g. https://jwt.io/
+
+
 Import the config and add a configuration bean
 ```
 @Configuration
@@ -15,18 +30,16 @@ public class MyConfiguration {
 
     @Bean
     public JWTSecurityConfig securityConfig() {
-        return JWTSecurityConfig
-            .builder()
-            .addAnonymousPaths("/admin/app_health")
-            .addAnonymousMethods(HttpMethod.OPTIONS)
-            .setValueJwtKeyset(mock(JWTKeyset.class))
-            .addNamespaces("https://test.org/")
-            .addRequiredClaims("foo")
-            .addRequiredClaims("bar")
-            .addTokenAudiences("https://test.org/api")
-            .withTokenLeeway(300)
-            .build();
+        return JWTSecurityConfig.builder() //
+                .addAnonymousPaths("/admin/app_health") //
+                .addAnonymousMethods(HttpMethod.OPTIONS) //
+                .addNamespaces("https://test.org/") //
+                .addRequiredClaims("foo") //
+                .addTokenAudiences("https://test.org/api") //
+                .withTokenLeeway(300) //
+                .build();
     }
+
 }
 ```
 
