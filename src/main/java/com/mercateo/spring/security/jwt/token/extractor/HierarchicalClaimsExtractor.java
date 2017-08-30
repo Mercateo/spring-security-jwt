@@ -10,6 +10,8 @@ import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import lombok.val;
 
+import static java.util.Objects.requireNonNull;
+
 class HierarchicalClaimsExtractor {
 
     private final TokenProcessor tokenProcessor;
@@ -65,7 +67,7 @@ class HierarchicalClaimsExtractor {
                 .withName(claimName)
                 .withValue(claim.asString())
                 .withVerified(verified)
-                .withIssuer(token.getIssuer())
+                .withIssuer(requireNonNull(token.getIssuer(), "token issuer (iss) not found"))
                 .withDepth(depth)
                 .build()));
     }

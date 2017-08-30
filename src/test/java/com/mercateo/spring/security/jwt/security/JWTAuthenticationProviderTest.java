@@ -53,7 +53,7 @@ public class JWTAuthenticationProviderTest {
 
     @Test
     public void shouldMapScopesToGrantedAuthorities() throws Exception {
-        val tokenString = JWT.create().withSubject("<subject>").sign(Algorithm.none());
+        val tokenString = JWT.create().sign(Algorithm.none());
         val tokenContainer = new JWTAuthenticationToken(tokenString);
 
         final Map<String, JWTClaim> claimsMap = HashMap.of( //
@@ -65,7 +65,7 @@ public class JWTAuthenticationProviderTest {
         val userDetails = uut.retrieveUser("<username>", tokenContainer);
 
         assertThat(userDetails).isNotNull();
-        assertThat(userDetails.getUsername()).isEqualTo("<subject>");
+        assertThat(userDetails.getUsername()).isNull();
         assertThat(((JWTPrincipal) userDetails).getToken()).isEqualTo(tokenString);
         assertThat(userDetails.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsExactlyInAnyOrder(
                 "foo", "bar");

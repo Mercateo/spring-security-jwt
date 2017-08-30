@@ -56,7 +56,7 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
 
         val token = JWT.decode(tokenString);
         val subject = token.getSubject();
-        val id = subject.hashCode();
+        val id = subject != null ? subject.hashCode() : 0;
 
         val authorities = claims
             .claims()
