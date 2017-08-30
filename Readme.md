@@ -15,7 +15,7 @@ public class MyConfiguration {
 
     @Bean
     public JWTSecurityConfig securityConfig() {
-        JWTSecurityConfig
+        return JWTSecurityConfig
             .builder()
             .addAnonymousPaths("/admin/app_health")
             .addAnonymousMethods(HttpMethod.OPTIONS)
