@@ -1,5 +1,7 @@
 package com.mercateo.spring.security.jwt.security;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -87,6 +89,7 @@ public class JWTPrincipal implements UserDetails {
     }
 
     public static JWTPrincipal fromContext() {
-        return (JWTPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return (JWTPrincipal) requireNonNull(requireNonNull(SecurityContextHolder.getContext(),
+                "no security context available").getAuthentication(), "no authentication available").getPrincipal();
     }
 }
