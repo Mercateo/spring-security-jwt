@@ -28,7 +28,7 @@ public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessi
 
         if (header == null || !header.startsWith("Bearer ")) {
             final String pathInfo = request.getPathInfo();
-            log.warn("no JWT token found {}{}", request.getServletPath(), pathInfo != null ? pathInfo : "");
+            log.warn("no JWT token found {}{} ({})", request.getServletPath(), pathInfo != null ? pathInfo : "", header);
             throw new InvalidTokenException("no token");
         } else {
             String authToken = header.split("\\s+")[1];
