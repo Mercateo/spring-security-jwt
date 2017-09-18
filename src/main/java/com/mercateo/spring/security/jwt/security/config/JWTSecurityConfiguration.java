@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.mercateo.spring.security.jwt.security.JWTAuthenticationEntryPoint;
@@ -60,12 +59,8 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
         JWTAuthenticationTokenFilter authenticationTokenFilter = new JWTAuthenticationTokenFilter();
         authenticationTokenFilter.setAuthenticationManager(authenticationManager());
         authenticationTokenFilter.setAuthenticationSuccessHandler(new JWTAuthenticationSuccessHandler());
-
-        AuthenticationFailureHandler authenticationFailureHandler = jwtSecurityConfig()
-                .authenticationFailureHandler().getOrNull();
-        if (authenticationFailureHandler != null) {
-            authenticationTokenFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
-        }
+        jwtSecurityConfig().authenticationFailureHandler().forEach(
+                authenticationTokenFilter::setAuthenticationFailureHandler);
 
         return authenticationTokenFilter;
     }
