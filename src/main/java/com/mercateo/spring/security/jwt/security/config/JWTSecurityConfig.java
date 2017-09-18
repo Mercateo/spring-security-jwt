@@ -2,6 +2,7 @@ package com.mercateo.spring.security.jwt.security.config;
 
 import org.immutables.value.Value;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 import com.auth0.jwt.JWTVerifier;
 import com.mercateo.immutables.DataClass;
@@ -38,6 +39,8 @@ public interface JWTSecurityConfig {
     default Option<JWTVerifier> jwtVerifier() {
         return jwtKeyset().map(jwks -> new JWTVerifierFactory(jwks, this)).map(JWTVerifierFactory::create);
     }
+
+    Option<AuthenticationFailureHandler> authenticationFailureHandler();
 
     /**
      * @return set of required claims
