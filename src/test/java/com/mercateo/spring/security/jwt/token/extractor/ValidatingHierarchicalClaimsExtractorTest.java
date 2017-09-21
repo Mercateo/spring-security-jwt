@@ -7,6 +7,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Date;
 
+import com.mercateo.spring.security.jwt.token.config.JWTConfig;
+import com.mercateo.spring.security.jwt.token.config.JWTConfigData;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,7 +18,6 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.mercateo.spring.security.jwt.JWKProvider;
-import com.mercateo.spring.security.jwt.security.config.JWTSecurityConfig;
 import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
 import com.mercateo.spring.security.jwt.token.claim.JWTClaims;
 import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
@@ -40,10 +41,10 @@ public class ValidatingHierarchicalClaimsExtractorTest {
 
     private JWTKeyset jwks;
 
-    public JWTSecurityConfig securityConfig() {
-        return JWTSecurityConfig
+    public JWTConfig securityConfig() {
+        return JWTConfigData
             .builder()
-            .addAnonymousPaths("/admin/app_health")
+            //.addAnonymousPaths("/admin/app_health")
             .setValueJwtKeyset(mock(JWTKeyset.class))
             .addNamespaces("https://test.org/")
             .addRequiredClaims("foo")
@@ -58,7 +59,7 @@ public class ValidatingHierarchicalClaimsExtractorTest {
 
         val securityConfig = securityConfig();
 
-        jwks = Option.of(securityConfig).flatMap(JWTSecurityConfig::jwtKeyset).getOrElseThrow(
+        jwks = Option.of(securityConfig).flatMap(JWTConfig::jwtKeyset).getOrElseThrow(
                 () -> new IllegalStateException("could not fetch jwks mock"));
 
         uut = new ValidatingHierarchicalClaimsExtractor(securityConfig);
@@ -158,7 +159,7 @@ public class ValidatingHierarchicalClaimsExtractorTest {
 
     @Test
     public void doesNotThrowsExceptionWithoutSignedTokenIfNoValidatorIsConfigured() {
-        uut = new ValidatingHierarchicalClaimsExtractor(JWTSecurityConfig.builder().build());
+        uut = new ValidatingHierarchicalClaimsExtractor(JWTConfigData.builder().build());
         final String tokenString = JWT.create().sign(Algorithm.none());
 
         val result = uut.extractClaims(tokenString);

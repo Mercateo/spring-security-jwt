@@ -1,4 +1,4 @@
-package com.mercateo.spring.security.jwt.token.extractor;
+package com.mercateo.spring.security.jwt.token.verifier;
 
 import static java.lang.Boolean.FALSE;
 
@@ -13,11 +13,11 @@ import lombok.AllArgsConstructor;
 import lombok.val;
 
 @AllArgsConstructor
-class TokenVerifier {
+public class TokenVerifier {
 
     private final Option<JWTVerifier> verifier;
 
-    boolean verifyToken(DecodedJWT token) {
+    public boolean verifyToken(DecodedJWT token) {
         val verifyToken = Function2.of(this::verify).apply(token);
 
         return verifier //

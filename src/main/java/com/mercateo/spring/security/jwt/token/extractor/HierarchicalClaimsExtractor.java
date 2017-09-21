@@ -5,7 +5,7 @@ import java.util.Stack;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
 
-import io.vavr.Value;
+import com.mercateo.spring.security.jwt.token.verifier.TokenVerifier;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import lombok.val;

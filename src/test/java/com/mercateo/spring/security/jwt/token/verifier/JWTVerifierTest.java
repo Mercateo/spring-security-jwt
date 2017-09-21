@@ -1,4 +1,4 @@
-package com.mercateo.spring.security.jwt.security.verifier;
+package com.mercateo.spring.security.jwt.token.verifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -7,6 +7,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Date;
 
+import com.mercateo.spring.security.jwt.token.config.JWTConfig;
+import com.mercateo.spring.security.jwt.token.config.JWTConfigData;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +23,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.mercateo.spring.security.jwt.JWKProvider;
-import com.mercateo.spring.security.jwt.security.config.JWTSecurityConfig;
 import com.mercateo.spring.security.jwt.token.keyset.JWTKeyset;
 
 import io.vavr.Tuple;
@@ -58,7 +59,7 @@ public class JWTVerifierTest {
         when(jwks.getKeysetForId(keyId)).thenReturn(Try.success(jwk));
         assertThat(jwks.getKeysetForId(keyId)).isNotNull();
 
-        uut = new JWTVerifierFactory(jwks, JWTSecurityConfig.builder().build()).create();
+        uut = new JWTVerifierFactory(jwks, JWTConfigData.builder().build()).create();
     }
 
     @Test
@@ -79,7 +80,7 @@ public class JWTVerifierTest {
     @Test
     public void verifiesJWTWithAudience() {
         val originalToken = addVerifiedJWTAuthHeader(30000, Tuple.of("aud", AUDIENCE));
-        uut = new JWTVerifierFactory(jwks, JWTSecurityConfig.builder().addTokenAudiences(AUDIENCE).build()).create();
+        uut = new JWTVerifierFactory(jwks, JWTConfigData.builder().addTokenAudiences(AUDIENCE).build()).create();
 
         val jwt = uut.verify(originalToken);
 
@@ -95,7 +96,7 @@ public class JWTVerifierTest {
     @Test
     public void failsVerifyingExpiredToken() {
         val originalToken = addVerifiedJWTAuthHeader(-30000);
-        uut = new JWTVerifierFactory(jwks, JWTSecurityConfig.builder().build()).create();
+        uut = new JWTVerifierFactory(jwks, JWTConfigData.builder().build()).create();
 
         assertThatThrownBy(() -> uut.verify(originalToken))
             .isInstanceOf(TokenExpiredException.class)
@@ -105,7 +106,7 @@ public class JWTVerifierTest {
     @Test
     public void verifiesExpiredTokenWithConfiguredLeeway() {
         val originalToken = addVerifiedJWTAuthHeader(-30000);
-        uut = new JWTVerifierFactory(jwks, JWTSecurityConfig.builder().withTokenLeeway(35).build()).create();
+        uut = new JWTVerifierFactory(jwks, JWTConfigData.builder().withTokenLeeway(35).build()).create();
 
         val jwt = uut.verify(originalToken);
 
@@ -115,7 +116,7 @@ public class JWTVerifierTest {
     @Test
     public void failsVerifyingMissingAudience() {
         val originalToken = addVerifiedJWTAuthHeader(30000);
-        final JWTSecurityConfig config = JWTSecurityConfig.builder().addTokenAudiences(AUDIENCE).build();
+        final JWTConfig config = JWTConfigData.builder().addTokenAudiences(AUDIENCE).build();
         uut = new JWTVerifierFactory(jwks, config).create();
 
         assertThatThrownBy(() -> uut.verify(originalToken)) //
@@ -125,18 +126,6 @@ public class JWTVerifierTest {
 
     @SafeVarargs
     private final String addVerifiedJWTAuthHeader(long expiry, Tuple2<String, String>... claims) {
-
-        JWTSecurityConfig
-                .builder()
-                .addAnonymousPaths("/admin/app_health")
-                .addAnonymousMethods(HttpMethod.OPTIONS)
-                .setValueJwtKeyset(mock(JWTKeyset.class))
-                .addNamespaces("https://test.org/")
-                .addRequiredClaims("foo")
-                .addRequiredClaims("bar")
-                .addTokenAudiences("https://test.org/api")
-                .withTokenLeeway(300)
-                .build();
 
         val now = System.currentTimeMillis() / 1000 * 1000;
         issuedAt = new Date(now);

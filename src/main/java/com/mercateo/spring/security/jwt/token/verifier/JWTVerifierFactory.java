@@ -1,4 +1,4 @@
-package com.mercateo.spring.security.jwt.security.verifier;
+package com.mercateo.spring.security.jwt.token.verifier;
 
 import java.security.Key;
 import java.security.interfaces.RSAPrivateKey;
@@ -9,8 +9,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.RSAKeyProvider;
-import com.auth0.jwt.interfaces.Verification;
-import com.mercateo.spring.security.jwt.security.config.JWTSecurityConfig;
+import com.mercateo.spring.security.jwt.token.config.JWTConfig;
 import com.mercateo.spring.security.jwt.token.keyset.JWTKeyset;
 
 import lombok.AllArgsConstructor;
@@ -23,7 +22,7 @@ import sun.security.rsa.RSAPublicKeyImpl;
 public class JWTVerifierFactory {
     final JWTKeyset jwks;
 
-    final JWTSecurityConfig config;
+    final JWTConfig config;
 
     public JWTVerifier create() {
         final RSAKeyProvider rsaKeyProvider = new RSAKeyProvider() {

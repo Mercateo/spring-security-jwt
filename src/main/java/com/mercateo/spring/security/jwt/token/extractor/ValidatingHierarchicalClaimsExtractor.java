@@ -2,10 +2,10 @@ package com.mercateo.spring.security.jwt.token.extractor;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
-import com.mercateo.spring.security.jwt.security.config.JWTSecurityConfig;
 import com.mercateo.spring.security.jwt.token.claim.JWTClaims;
+import com.mercateo.spring.security.jwt.token.config.JWTConfig;
+import com.mercateo.spring.security.jwt.token.verifier.TokenVerifier;
 
-import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.control.Option;
@@ -35,7 +35,7 @@ public class ValidatingHierarchicalClaimsExtractor {
 
     private final Option<JWTVerifier> jwtVerifier;
 
-    public ValidatingHierarchicalClaimsExtractor(JWTSecurityConfig config) {
+    public ValidatingHierarchicalClaimsExtractor(JWTConfig config) {
         this.tokenProcessor = new TokenProcessor();
         jwtVerifier = config.jwtVerifier();
         this.verifier = new TokenVerifier(jwtVerifier);
