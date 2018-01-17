@@ -2,13 +2,10 @@ package com.mercateo.spring.security.jwt.token.verifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
 
-import com.mercateo.spring.security.jwt.token.config.JWTConfig;
-import com.mercateo.spring.security.jwt.token.config.JWTConfigData;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,13 +20,14 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.mercateo.spring.security.jwt.JWKProvider;
+import com.mercateo.spring.security.jwt.token.config.JWTConfig;
+import com.mercateo.spring.security.jwt.token.config.JWTConfigData;
 import com.mercateo.spring.security.jwt.token.keyset.JWTKeyset;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.control.Try;
 import lombok.val;
-import org.springframework.http.HttpMethod;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JWTVerifierTest {
@@ -106,7 +104,7 @@ public class JWTVerifierTest {
     @Test
     public void verifiesExpiredTokenWithConfiguredLeeway() {
         val originalToken = addVerifiedJWTAuthHeader(-30000);
-        uut = new JWTVerifierFactory(jwks, JWTConfigData.builder().withTokenLeeway(35).build()).create();
+        uut = new JWTVerifierFactory(jwks, JWTConfigData.builder().tokenLeeway(35).build()).create();
 
         val jwt = uut.verify(originalToken);
 

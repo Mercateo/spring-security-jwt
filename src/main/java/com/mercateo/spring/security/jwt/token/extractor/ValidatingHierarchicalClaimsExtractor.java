@@ -60,9 +60,9 @@ public class ValidatingHierarchicalClaimsExtractor {
 
         return JWTClaims
             .builder()
-            .withClaims(collector.wrapInnerClaims(claims))
-            .withVerifiedCount(extractor.getVerifiedTokenCount())
-            .withToken(JWT.decode(tokenString))
+            .claims(collector.wrapInnerClaims(claims))
+            .verifiedCount(extractor.getVerifiedTokenCount())
+            .token(JWT.decode(tokenString))
             .build();
     }
 

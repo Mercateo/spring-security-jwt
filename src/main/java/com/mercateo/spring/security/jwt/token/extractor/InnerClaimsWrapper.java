@@ -18,7 +18,11 @@ class InnerClaimsWrapper {
         Option<JWTClaim> innerClaim = Option.none();
 
         for (JWTClaim jwtClaim : reverse) {
-            innerClaim = Option.some(JWTClaim.builder().from(jwtClaim).withInnerClaim(innerClaim).build());
+            innerClaim = Option.some(JWTClaim //
+                .builder()
+                .from(jwtClaim)
+                .innerClaim(innerClaim)
+                .build());
         }
 
         // noinspection ConstantConditions

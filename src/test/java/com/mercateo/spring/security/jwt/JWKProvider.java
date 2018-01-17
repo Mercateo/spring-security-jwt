@@ -35,7 +35,7 @@ public class JWKProvider {
         additionalValues.put("n", Base64.encodeBase64String(publicKey.getModulus().toByteArray()));
         additionalValues.put("e", Base64.encodeBase64String(publicKey.getPublicExponent().toByteArray()));
 
-        return new Jwk(keyId, "RSA", algorithm.getName(), null, null, null, Collections.emptyList(), null, additionalValues);
+        return new Jwk(keyId, "RSA", algorithm.getName(), null, Collections.emptyList(), null, Collections.emptyList(), null, additionalValues);
     }
 
     public Algorithm getAlgorithm() {
