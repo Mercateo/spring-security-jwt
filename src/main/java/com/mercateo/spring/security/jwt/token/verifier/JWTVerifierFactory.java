@@ -20,6 +20,7 @@ import sun.security.rsa.RSAPublicKeyImpl;
 @AllArgsConstructor
 @Slf4j
 public class JWTVerifierFactory {
+    public static final int ISSUED_AT_LEEWAY = 60;
     final JWTKeyset jwks;
 
     final JWTConfig config;
@@ -52,7 +53,12 @@ public class JWTVerifierFactory {
 
         val verification = JWT.require(algorithm);
 
-        verification.acceptLeeway(config.getTokenLeeway());
+        final int tokenLeeway = config.getTokenLeeway();
+        verification.acceptLeeway(tokenLeeway);
+
+        if (tokenLeeway < ISSUED_AT_LEEWAY) {
+            verification.acceptIssuedAt(ISSUED_AT_LEEWAY);
+        }
 
         val tokenAudiences = config.getTokenAudiences();
         if (tokenAudiences.nonEmpty()) {

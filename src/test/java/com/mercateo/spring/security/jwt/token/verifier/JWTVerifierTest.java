@@ -35,6 +35,7 @@ public class JWTVerifierTest {
     private static final String NAMESPACE_PREFIX = "https://test.org/";
 
     public static final String AUDIENCE = "<audience>";
+    public static final int MILLISECONDS_PER_SECOND = 1000;
 
     @Mock
     private JWTKeyset jwks;
@@ -62,7 +63,7 @@ public class JWTVerifierTest {
 
     @Test
     public void verifiesJWT() {
-        val originalToken = addVerifiedJWTAuthHeader(30000);
+        val originalToken = addVerifiedJWTAuthHeader(0, 30);
 
         val jwt = uut.verify(originalToken);
 
@@ -77,7 +78,7 @@ public class JWTVerifierTest {
 
     @Test
     public void verifiesJWTWithAudience() {
-        val originalToken = addVerifiedJWTAuthHeader(30000, Tuple.of("aud", AUDIENCE));
+        val originalToken = addVerifiedJWTAuthHeader(0, 30, Tuple.of("aud", AUDIENCE));
         uut = new JWTVerifierFactory(jwks, JWTConfigData.builder().addTokenAudiences(AUDIENCE).build()).create();
 
         val jwt = uut.verify(originalToken);
@@ -93,7 +94,7 @@ public class JWTVerifierTest {
 
     @Test
     public void failsVerifyingExpiredToken() {
-        val originalToken = addVerifiedJWTAuthHeader(-30000);
+        val originalToken = addVerifiedJWTAuthHeader(0, -30);
         uut = new JWTVerifierFactory(jwks, JWTConfigData.builder().build()).create();
 
         assertThatThrownBy(() -> uut.verify(originalToken))
@@ -102,8 +103,28 @@ public class JWTVerifierTest {
     }
 
     @Test
+    public void verifiesOffsetIssuedTokenWithDefaultLeeway() {
+        val originalToken = addVerifiedJWTAuthHeader(58, 3600);
+        uut = new JWTVerifierFactory(jwks, JWTConfigData.builder().build()).create();
+
+        val jwt = uut.verify(originalToken);
+
+        assertThat(jwt.getIssuedAt()).isAfter(new Date());
+    }
+
+    @Test
+    public void verifiesOffsetIssuedTokenWithExtendedLeeway() {
+        val originalToken = addVerifiedJWTAuthHeader(118, 3600);
+        uut = new JWTVerifierFactory(jwks, JWTConfigData.builder().tokenLeeway(120).build()).create();
+
+        val jwt = uut.verify(originalToken);
+
+        assertThat(jwt.getIssuedAt()).isAfter(new Date());
+    }
+
+    @Test
     public void verifiesExpiredTokenWithConfiguredLeeway() {
-        val originalToken = addVerifiedJWTAuthHeader(-30000);
+        val originalToken = addVerifiedJWTAuthHeader(0, -30);
         uut = new JWTVerifierFactory(jwks, JWTConfigData.builder().tokenLeeway(35).build()).create();
 
         val jwt = uut.verify(originalToken);
@@ -113,7 +134,7 @@ public class JWTVerifierTest {
 
     @Test
     public void failsVerifyingMissingAudience() {
-        val originalToken = addVerifiedJWTAuthHeader(30000);
+        val originalToken = addVerifiedJWTAuthHeader(0, 30);
         final JWTConfig config = JWTConfigData.builder().addTokenAudiences(AUDIENCE).build();
         uut = new JWTVerifierFactory(jwks, config).create();
 
@@ -123,11 +144,11 @@ public class JWTVerifierTest {
     }
 
     @SafeVarargs
-    private final String addVerifiedJWTAuthHeader(long expiry, Tuple2<String, String>... claims) {
+    private final String addVerifiedJWTAuthHeader(long issued_offset, long expiry_offset, Tuple2<String, String>... claims) {
 
-        val now = System.currentTimeMillis() / 1000 * 1000;
-        issuedAt = new Date(now);
-        expiresAt = new Date(now + expiry);
+        val now = System.currentTimeMillis() / MILLISECONDS_PER_SECOND * MILLISECONDS_PER_SECOND;
+        issuedAt = new Date(now + issued_offset * MILLISECONDS_PER_SECOND);
+        expiresAt = new Date(now + expiry_offset * MILLISECONDS_PER_SECOND);
         final JWTCreator.Builder jwtBuilder = JWT
             .create()
             .withKeyId(keyId)
