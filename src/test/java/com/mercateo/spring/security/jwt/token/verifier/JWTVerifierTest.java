@@ -15,7 +15,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import com.auth0.jwk.Jwk;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
-import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
@@ -32,10 +31,11 @@ import lombok.val;
 @RunWith(MockitoJUnitRunner.class)
 public class JWTVerifierTest {
 
-    private static final String NAMESPACE_PREFIX = "https://test.org/";
-
     public static final String AUDIENCE = "<audience>";
+
     public static final int MILLISECONDS_PER_SECOND = 1000;
+
+    private static final String NAMESPACE_PREFIX = "https://test.org/";
 
     @Mock
     private JWTKeyset jwks;
@@ -93,6 +93,20 @@ public class JWTVerifierTest {
     }
 
     @Test
+    public void verifiesJWTWithAlternativeAudience() {
+        val originalToken = addVerifiedJWTAuthHeader(0, 30, Tuple.of("aud", AUDIENCE));
+        uut = new JWTVerifierFactory(jwks, JWTConfigData
+            .builder()
+            .addTokenAudiences(AUDIENCE)
+            .addTokenAudiences("<other>")
+            .build()).create();
+
+        val jwt = uut.verify(originalToken);
+
+        assertThat(jwt.getClaim("aud").asString()).isEqualTo(AUDIENCE);
+    }
+
+    @Test
     public void failsVerifyingExpiredToken() {
         val originalToken = addVerifiedJWTAuthHeader(0, -30);
         uut = new JWTVerifierFactory(jwks, JWTConfigData.builder().build()).create();
@@ -140,11 +154,12 @@ public class JWTVerifierTest {
 
         assertThatThrownBy(() -> uut.verify(originalToken)) //
             .isInstanceOf(InvalidClaimException.class)
-            .hasMessage("The Claim 'aud' value doesn't contain the required audience.");
+            .hasMessage("The Claim 'aud' value doesn't contain at least one of the required audiences.");
     }
 
     @SafeVarargs
-    private final String addVerifiedJWTAuthHeader(long issued_offset, long expiry_offset, Tuple2<String, String>... claims) {
+    private final String addVerifiedJWTAuthHeader(long issued_offset, long expiry_offset,
+            Tuple2<String, String>... claims) {
 
         val now = System.currentTimeMillis() / MILLISECONDS_PER_SECOND * MILLISECONDS_PER_SECOND;
         issuedAt = new Date(now + issued_offset * MILLISECONDS_PER_SECOND);

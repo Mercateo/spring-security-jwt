@@ -24,6 +24,10 @@ import io.vavr.control.Option;
 @Value.Immutable
 @DataClass
 public interface JWTClaim {
+    static ImmutableJWTClaim.Builder builder() {
+        return ImmutableJWTClaim.builder();
+    }
+
     String name();
 
     Object value();
@@ -43,9 +47,5 @@ public interface JWTClaim {
     @Value.Default
     default int depth() {
         return 0;
-    }
-
-    static ImmutableJWTClaim.Builder builder() {
-        return ImmutableJWTClaim.builder();
     }
 }

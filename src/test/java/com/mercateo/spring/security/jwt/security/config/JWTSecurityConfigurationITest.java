@@ -25,17 +25,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {
-        JWTSecurityConfigurationITest.TestPathConfiguration.class,
-        JWTSecurityConfigurationITest.TestController.class,
-        JWTSecurityConfiguration.class})
+@ContextConfiguration(classes = { JWTSecurityConfigurationITest.TestPathConfiguration.class,
+        JWTSecurityConfigurationITest.TestController.class, JWTSecurityConfiguration.class })
 @WebAppConfiguration
 @EnableWebSecurity
 public class JWTSecurityConfigurationITest {
-    private MockMvc mockMvc;
-
     @Autowired
     TestController testController;
+
+    private MockMvc mockMvc;
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -89,7 +87,8 @@ public class JWTSecurityConfigurationITest {
             return "anonymousResponse";
         }
 
-        @RequestMapping(value = "/authorized", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS})
+        @RequestMapping(value = "/authorized", method = { RequestMethod.GET, RequestMethod.POST,
+                RequestMethod.OPTIONS })
         public String authorizedAccess() {
             return "authorizedResponse";
         }

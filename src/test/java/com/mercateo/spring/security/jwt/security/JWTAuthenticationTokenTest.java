@@ -1,10 +1,9 @@
 package com.mercateo.spring.security.jwt.security;
 
-import com.mercateo.spring.security.jwt.security.JWTAuthenticationToken;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class JWTAuthenticationTokenTest {
 

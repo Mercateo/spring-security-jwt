@@ -20,8 +20,6 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
 import com.auth0.jwk.Jwk;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.RSAKeyProvider;
 import com.mercateo.spring.security.jwt.token.config.JWTConfig;
@@ -35,10 +33,13 @@ import sun.security.rsa.RSAPublicKeyImpl;
 @AllArgsConstructor
 @Slf4j
 public class JWTVerifierFactory {
-    public static final int ISSUED_AT_LEEWAY = 60;
     final JWTKeyset jwks;
 
     final JWTConfig config;
+
+    private static IllegalStateException map(Throwable cause) {
+        return new IllegalStateException(cause);
+    }
 
     public JWTVerifier create() {
         final RSAKeyProvider rsaKeyProvider = new RSAKeyProvider() {
@@ -66,14 +67,10 @@ public class JWTVerifierFactory {
 
         val algorithm = Algorithm.RSA256(rsaKeyProvider);
 
-        val verification = JWT.require(algorithm);
+        val verification = JWTVerifier.init(algorithm);
 
         final int tokenLeeway = config.getTokenLeeway();
         verification.acceptLeeway(tokenLeeway);
-
-        if (tokenLeeway < ISSUED_AT_LEEWAY) {
-            verification.acceptIssuedAt(ISSUED_AT_LEEWAY);
-        }
 
         val tokenAudiences = config.getTokenAudiences();
         if (tokenAudiences.nonEmpty()) {
@@ -81,9 +78,5 @@ public class JWTVerifierFactory {
         }
 
         return verification.build();
-    }
-
-    private static IllegalStateException map(Throwable cause) {
-        return new IllegalStateException(cause);
     }
 }

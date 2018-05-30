@@ -67,7 +67,8 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     @Override
     public AuthenticationManager authenticationManager() throws Exception {
-        return new ProviderManager(Collections.singletonList(jwtAuthenticationProvider(hierarchicalJwtClaimsExtractor())));
+        return new ProviderManager(Collections.singletonList(jwtAuthenticationProvider(
+                hierarchicalJwtClaimsExtractor())));
     }
 
     public JWTAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
@@ -81,7 +82,8 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public JWTAuthenticationProvider jwtAuthenticationProvider(ValidatingHierarchicalClaimsExtractor hierarchicalJWTClaimsExtractor) {
+    public JWTAuthenticationProvider jwtAuthenticationProvider(
+            ValidatingHierarchicalClaimsExtractor hierarchicalJWTClaimsExtractor) {
         return new JWTAuthenticationProvider(hierarchicalJWTClaimsExtractor);
     }
 
@@ -98,24 +100,24 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
             .disable()
 
             // allow
-                .authorizeRequests()
-                .antMatchers(unauthenticatedPaths)
-                .permitAll()
+            .authorizeRequests()
+            .antMatchers(unauthenticatedPaths)
+            .permitAll()
             .and()
             // enable authorization
-                .authorizeRequests()
-                .anyRequest()
-                .authenticated()
+            .authorizeRequests()
+            .anyRequest()
+            .authenticated()
             .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(jwtAuthenticationEntryPoint())
+            .exceptionHandling()
+            .authenticationEntryPoint(jwtAuthenticationEntryPoint())
             .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
             // Custom JWT based security filter
             .and()
-                .addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class)
 
             // disable page caching
             .headers()
@@ -130,7 +132,7 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     private String[] getUnauthenticatedPaths() {
-        return config.map(JWTSecurityConfig::anonymousPaths).map(list -> list.toJavaArray(String.class))
-                .orElse(new String[0]);
+        return config.map(JWTSecurityConfig::anonymousPaths).map(list -> list.toJavaArray(String.class)).orElse(
+                new String[0]);
     }
 }

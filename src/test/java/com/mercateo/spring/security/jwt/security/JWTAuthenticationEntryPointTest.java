@@ -1,5 +1,7 @@
 package com.mercateo.spring.security.jwt.security;
 
+import static org.mockito.Mockito.verify;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -9,8 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.core.AuthenticationException;
-
-import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JWTAuthenticationEntryPointTest {

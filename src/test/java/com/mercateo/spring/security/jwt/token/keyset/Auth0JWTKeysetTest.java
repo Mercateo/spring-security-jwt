@@ -1,12 +1,14 @@
 package com.mercateo.spring.security.jwt.token.keyset;
 
-import com.auth0.jwk.Jwk;
-import com.auth0.jwk.SigningKeyNotFoundException;
-import io.vavr.control.Try;
-import lombok.val;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.auth0.jwk.Jwk;
+import com.auth0.jwk.SigningKeyNotFoundException;
+
+import io.vavr.control.Try;
+import lombok.val;
 
 public class Auth0JWTKeysetTest {
 
@@ -20,7 +22,6 @@ public class Auth0JWTKeysetTest {
     @Test
     public void shouldReturnFailureForUnknownKeyId() {
         val jwtKeyset = new Auth0JWTKeyset("domain");
-
 
         final Try<Jwk> foo = jwtKeyset.getKeysetForId("foo");
         assertThat(foo.isFailure()).isTrue();
