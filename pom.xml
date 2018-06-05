@@ -2,6 +2,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>com.mercateo.oss.parent</groupId>
+        <artifactId>oss-parent-pom</artifactId>
+        <version>0.9.0</version>
+    </parent>
+
     <artifactId>spring-security-jwt</artifactId>
     <groupId>com.mercateo.spring</groupId>
     <version>0.4.2-SNAPSHOT</version>
@@ -21,13 +27,6 @@
         <system>github</system>
         <url>https://github.com/Mercateo/spring-security-jwt/issues</url>
     </issueManagement>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
 
     <licenses>
         <license>
@@ -63,6 +62,7 @@
 
     <scm>
         <connection>scm:git:git@github.com:Mercateo/spring-security-jwt.git</connection>
+        <developerConnection>scm:git:git@github.com:Mercateo/spring-security-jwt.git</developerConnection>
         <url>https://github.com/Mercateo/spring-security-jwt.git</url>
         <tag>HEAD</tag>
     </scm>
@@ -70,8 +70,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring-security.version>4.2.4.RELEASE</spring-security.version>
-        <spring.version>4.3.14.RELEASE</spring.version>
+        <spring-security.version>4.2.6.RELEASE</spring-security.version>
+        <spring.version>4.3.17.RELEASE</spring.version>
     </properties>
 
     <build>
@@ -80,17 +80,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.5.3</version>
-            </plugin>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.8</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -123,7 +112,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.4</version>
+                <version>3.0.1</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -148,7 +137,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.0</version>
+                <version>0.8.1</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
@@ -181,7 +170,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.20</version>
+                <version>2.21.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -202,7 +191,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.16.20</version>
+            <version>1.16.22.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -242,7 +231,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>2.9.4</version>
+            <version>2.9.5</version>
         </dependency>
         <dependency>
             <groupId>com.auth0</groupId>
@@ -262,7 +251,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>24.0-jre</version>
+            <version>25.1-jre</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -285,7 +274,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>2.15.0</version>
+            <version>2.18.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -324,33 +313,4 @@
             <version>1.7.25</version>
         </dependency>
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>release-sign-artifacts</id>
-            <activation>
-                <property>
-                    <name>gpg.passphrase</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
