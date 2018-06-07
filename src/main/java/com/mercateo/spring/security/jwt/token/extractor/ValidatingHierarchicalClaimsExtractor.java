@@ -64,7 +64,8 @@ public class ValidatingHierarchicalClaimsExtractor {
     }
 
     public JWTClaims extractClaims(String tokenString) {
-        val extractor = new HierarchicalClaimsExtractor(tokenProcessor, verifier, claims, namespaces);
+        val extractor = new HierarchicalClaimsExtractor(tokenProcessor, verifier, claims, namespaces,
+                new ClaimExtractor());
 
         val claims = extractor.extractClaims(tokenString);
 

@@ -15,13 +15,13 @@
  */
 package com.mercateo.spring.security.jwt.security;
 
-import com.mercateo.spring.security.jwt.security.exception.InvalidTokenException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.auth0.jwt.JWT;
+import com.mercateo.spring.security.jwt.security.exception.InvalidTokenException;
 import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
 import com.mercateo.spring.security.jwt.token.claim.JWTClaims;
 import com.mercateo.spring.security.jwt.token.exception.TokenException;
@@ -63,7 +63,7 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
                 message = e.getCause().getMessage();
             } else if (e.getMessage() != null) {
                 message = e.getMessage();
-            } else  {
+            } else {
                 message = "failed to extract token";
             }
             throw new InvalidTokenException(message, e);
@@ -77,7 +77,7 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
             .claims()
             .get("scope")
             .map(JWTClaim::value)
-            .map(value -> value.split("\\s+"))
+            .map(value -> ((String) value).split("\\s+"))
             .map(List::of)
             .map(list -> list.map(value -> JWTAuthority.builder().authority(value).build()))
             .getOrElse(List.empty());

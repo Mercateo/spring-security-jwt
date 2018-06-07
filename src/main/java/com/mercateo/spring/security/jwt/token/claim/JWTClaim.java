@@ -26,7 +26,7 @@ import io.vavr.control.Option;
 public interface JWTClaim {
     String name();
 
-    String value();
+    Object value();
 
     @Value.Default
     default String issuer() {

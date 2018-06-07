@@ -24,7 +24,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import io.vavr.control.Option;
 
 class TokenProcessor {
-    DecodedJWT getNextToken(String tokenString) {
+    DecodedJWT decodeToken(String tokenString) {
         return JWT.decode(tokenString);
     }
 
