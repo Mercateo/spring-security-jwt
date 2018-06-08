@@ -15,10 +15,6 @@ public class JWTPrincipalTest {
 
     private JWTPrincipal uut;
 
-    static enum Claims {
-        FOO_BAR
-    }
-
     @Before
     public void setUp() throws Exception {
         Map<String, JWTClaim> claimsStringHashMap = HashMap.empty();
@@ -34,5 +30,9 @@ public class JWTPrincipalTest {
     @Test
     public void shouldTransportId() throws Exception {
         assertThat(uut.getId()).isEqualTo(123l);
+    }
+
+    static enum Claims {
+        FOO_BAR
     }
 }

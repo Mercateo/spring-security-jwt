@@ -17,8 +17,8 @@ package com.mercateo.spring.security.jwt.token.config;
 
 import org.immutables.value.Value;
 
-import com.auth0.jwt.JWTVerifier;
 import com.mercateo.spring.security.jwt.token.keyset.JWTKeyset;
+import com.mercateo.spring.security.jwt.token.verifier.JWTVerifier;
 import com.mercateo.spring.security.jwt.token.verifier.JWTVerifierFactory;
 
 import io.vavr.collection.Set;

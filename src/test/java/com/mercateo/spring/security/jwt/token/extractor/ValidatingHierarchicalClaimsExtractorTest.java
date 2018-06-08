@@ -9,8 +9,6 @@ import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
 
-import com.mercateo.spring.security.jwt.token.config.JWTConfig;
-import com.mercateo.spring.security.jwt.token.config.JWTConfigData;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,6 +20,8 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.mercateo.spring.security.jwt.JWKProvider;
 import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
 import com.mercateo.spring.security.jwt.token.claim.JWTClaims;
+import com.mercateo.spring.security.jwt.token.config.JWTConfig;
+import com.mercateo.spring.security.jwt.token.config.JWTConfigData;
 import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
 import com.mercateo.spring.security.jwt.token.exception.MissingClaimException;
 import com.mercateo.spring.security.jwt.token.exception.MissingSignatureException;
@@ -46,7 +46,7 @@ public class ValidatingHierarchicalClaimsExtractorTest {
     public JWTConfig securityConfig() {
         return JWTConfigData
             .builder()
-            //.addAnonymousPaths("/admin/app_health")
+            // .addAnonymousPaths("/admin/app_health")
             .setValueJwtKeyset(mock(JWTKeyset.class))
             .addNamespaces("https://test.org/")
             .addRequiredClaims("foo")

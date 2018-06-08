@@ -15,8 +15,9 @@
  */
 package com.mercateo.spring.security.jwt.token.config;
 
-import com.mercateo.immutables.DataClass;
 import org.immutables.value.Value;
+
+import com.mercateo.immutables.DataClass;
 
 @Value.Immutable
 @DataClass

@@ -16,9 +16,9 @@
 package com.mercateo.spring.security.jwt.token.extractor;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
 import com.mercateo.spring.security.jwt.token.claim.JWTClaims;
 import com.mercateo.spring.security.jwt.token.config.JWTConfig;
+import com.mercateo.spring.security.jwt.token.verifier.JWTVerifier;
 import com.mercateo.spring.security.jwt.token.verifier.TokenVerifier;
 
 import io.vavr.collection.List;

@@ -29,6 +29,10 @@ import io.vavr.control.Option;
 @DataClass
 public interface JWTSecurityConfig extends JWTConfig {
 
+    static ImmutableJWTSecurityConfig.Builder builder() {
+        return ImmutableJWTSecurityConfig.builder();
+    }
+
     /**
      * @return Paths with anonymous access
      */
@@ -40,8 +44,4 @@ public interface JWTSecurityConfig extends JWTConfig {
     Set<HttpMethod> anonymousMethods();
 
     Option<AuthenticationFailureHandler> authenticationFailureHandler();
-
-    static ImmutableJWTSecurityConfig.Builder builder() {
-        return ImmutableJWTSecurityConfig.builder();
-    }
 }

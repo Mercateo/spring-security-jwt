@@ -51,6 +51,11 @@ public class JWTPrincipal implements UserDetails {
         this.claims = claims;
     }
 
+    public static JWTPrincipal fromContext() {
+        return (JWTPrincipal) requireNonNull(requireNonNull(SecurityContextHolder.getContext(),
+                "no security context available").getAuthentication(), "no authentication available").getPrincipal();
+    }
+
     @JsonIgnore
     public Long getId() {
         return id;
@@ -101,10 +106,5 @@ public class JWTPrincipal implements UserDetails {
 
     public Option<JWTClaim> getClaim(String key) {
         return claims.get(key);
-    }
-
-    public static JWTPrincipal fromContext() {
-        return (JWTPrincipal) requireNonNull(requireNonNull(SecurityContextHolder.getContext(),
-                "no security context available").getAuthentication(), "no authentication available").getPrincipal();
     }
 }
