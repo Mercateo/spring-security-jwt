@@ -51,12 +51,15 @@ public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessi
         } else {
             String authToken = header.split("\\s+")[1];
 
-            try {
-                return getAuthenticationManager().authenticate(new JWTAuthenticationToken(
-                        authToken));
-            } catch (JWTDecodeException e) {
-                throw new InvalidTokenException("invalid token", e);
-            }
+            return authenticate(authToken);
+        }
+    }
+
+    private Authentication authenticate(String authToken) {
+        try {
+            return getAuthenticationManager().authenticate(new JWTAuthenticationToken(authToken));
+        } catch (JWTDecodeException e) {
+            throw new InvalidTokenException("invalid token", e);
         }
     }
 

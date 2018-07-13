@@ -2,6 +2,7 @@ package com.mercateo.spring.security.jwt.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,6 +19,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.mercateo.spring.security.jwt.security.exception.InvalidTokenException;
 
 import lombok.val;
@@ -55,6 +57,19 @@ public class JWTAuthenticationTokenFilterTest {
         val result = uut.attemptAuthentication(request, response);
 
         assertThat(result).isEqualTo(authentication);
+    }
+
+    @Test
+    public void rethrowsJWTException() {
+        val tokenString = "<token>";
+        when(request.getHeader("authorization")).thenReturn("Bearer " + tokenString);
+        final JWTDecodeException jwtDecodeException = new JWTDecodeException("invalid token");
+        when(authenticationManager.authenticate(any())).thenThrow(jwtDecodeException);
+
+        assertThatThrownBy(() -> uut.attemptAuthentication(request, response))
+            .isInstanceOf(InvalidTokenException.class)
+            .hasMessage("invalid token")
+            .hasCause(jwtDecodeException);
     }
 
     @Test
