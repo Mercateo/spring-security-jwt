@@ -258,7 +258,7 @@
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>jwks-rsa</artifactId>
-            <version>0.3.0</version>
+            <version>0.5.0</version>
         </dependency>
         <dependency>
             <groupId>io.vavr</groupId>
