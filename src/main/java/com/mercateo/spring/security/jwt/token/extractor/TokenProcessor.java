@@ -18,14 +18,21 @@ package com.mercateo.spring.security.jwt.token.extractor;
 import java.util.function.Consumer;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
+import com.mercateo.spring.security.jwt.token.exception.TokenException;
 import io.vavr.control.Option;
 
 class TokenProcessor {
     DecodedJWT decodeToken(String tokenString) {
-        return JWT.decode(tokenString);
+        try {
+            return JWT.decode(tokenString);
+        } catch (JWTDecodeException e) {
+            throw new InvalidTokenException("could not decode token", e);
+        }
     }
 
     void memoizePossiblyWrappedToken(DecodedJWT token, Consumer<String> tokenStringConsumer) {

@@ -90,7 +90,7 @@ public class JWTAuthenticationProviderTest {
 
         val tokenContainer = new JWTAuthenticationToken(tokenString);
         assertThatThrownBy(() -> uut.retrieveUser("<userName>", tokenContainer))
-            .isInstanceOf(com.mercateo.spring.security.jwt.security.exception.InvalidTokenException.class)
+            .isInstanceOf(InvalidTokenException.class)
             .hasMessage("failed to extract token")
             .hasCause(exception);
     }

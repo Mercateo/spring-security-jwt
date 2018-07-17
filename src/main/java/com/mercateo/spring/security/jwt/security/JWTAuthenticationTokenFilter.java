@@ -25,8 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 
-import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.mercateo.spring.security.jwt.security.exception.InvalidTokenException;
+import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,15 +50,7 @@ public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessi
         } else {
             String authToken = header.split("\\s+")[1];
 
-            return authenticate(authToken);
-        }
-    }
-
-    private Authentication authenticate(String authToken) {
-        try {
             return getAuthenticationManager().authenticate(new JWTAuthenticationToken(authToken));
-        } catch (JWTDecodeException e) {
-            throw new InvalidTokenException("invalid token", e);
         }
     }
 

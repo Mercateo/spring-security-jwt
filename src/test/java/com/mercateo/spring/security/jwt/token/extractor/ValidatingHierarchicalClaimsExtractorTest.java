@@ -218,6 +218,15 @@ public class ValidatingHierarchicalClaimsExtractorTest {
     }
 
     @Test
+    public void rethrowsJWTException() {
+        val tokenString = "<token>";
+
+        assertThatThrownBy(() -> uut.extractClaims(tokenString)) //
+                .isInstanceOf(InvalidTokenException.class)
+                .hasMessage("could not decode token");
+    }
+
+    @Test
     public void throwsExceptionWhenTokenIsExpired() throws Exception {
         final String tokenString = signedJwtBuilder()
             .withClaim("scope", "test")
