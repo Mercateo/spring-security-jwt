@@ -15,7 +15,9 @@
  */
 package com.mercateo.spring.security.jwt.token.exception;
 
-public class TokenException extends RuntimeException {
+import org.springframework.security.core.AuthenticationException;
+
+public class TokenException extends AuthenticationException {
     public TokenException(String message) {
         super(message);
     }
