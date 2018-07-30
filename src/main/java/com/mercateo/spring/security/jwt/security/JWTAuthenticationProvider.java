@@ -18,6 +18,7 @@ package com.mercateo.spring.security.jwt.security;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.auth0.jwt.JWT;
@@ -72,16 +73,20 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
         val token = JWT.decode(tokenString);
         val subject = token.getSubject();
         val id = subject != null ? subject.hashCode() : 0;
+        val authorities = retrieveAuthorities(claims);
 
-        val authorities = claims
-            .claims()
-            .get("scope")
-            .map(JWTClaim::value)
-            .map(value -> ((String) value).split("\\s+"))
-            .map(List::of)
-            .map(list -> list.map(value -> JWTAuthority.builder().authority(value).build()))
-            .getOrElse(List.empty());
 
         return new JWTPrincipal(id, subject, tokenString, authorities, claims.claims());
+    }
+
+    protected List<? extends GrantedAuthority> retrieveAuthorities(JWTClaims claims) {
+        return claims
+                .claims()
+                .get("scope")
+                .map(JWTClaim::value)
+                .map(value -> ((String) value).split("\\s+"))
+                .map(List::of)
+                .map(list -> list.map(value -> JWTAuthority.builder().authority(value).build()))
+                .getOrElse(List.empty());
     }
 }
