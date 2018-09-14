@@ -15,6 +15,8 @@
  */
 package com.mercateo.spring.security.jwt.security;
 
+import java.util.Objects;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
@@ -75,18 +77,40 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
         val id = subject != null ? subject.hashCode() : 0;
         val authorities = retrieveAuthorities(claims);
 
-
         return new JWTPrincipal(id, subject, tokenString, authorities, claims.claims());
     }
 
     protected List<? extends GrantedAuthority> retrieveAuthorities(JWTClaims claims) {
+        val scopes = extractScopes(claims);
+        val roles = extractRoles(claims);
+        return List //
+            .ofAll(scopes)
+            .appendAll(roles)
+            .map(value -> JWTAuthority.builder().authority(value).build());
+    }
+
+    private List<String> extractScopes(JWTClaims claims) {
         return claims
-                .claims()
-                .get("scope")
-                .map(JWTClaim::value)
-                .map(value -> ((String) value).split("\\s+"))
-                .map(List::of)
-                .map(list -> list.map(value -> JWTAuthority.builder().authority(value).build()))
-                .getOrElse(List.empty());
+            .claims()
+            .get("scope")
+            .map(JWTClaim::value)
+            .filter(Objects::nonNull)
+            .map(value -> ((String) value).split("\\s+"))
+            .map(List::of)
+            .getOrElse(List.empty());
+    }
+
+    private List<String> extractRoles(JWTClaims claims) {
+        return claims
+            .claims()
+            .get("roles")
+            .map(JWTClaim::value)
+            .filter(Objects::nonNull)
+            .map(container -> (Object[]) container)
+            .map(List::of)
+            .map(list -> list //
+                .map(element -> "ROLE_" + element)
+                .map(String::toUpperCase))
+            .getOrElse(List.empty());
     }
 }

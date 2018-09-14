@@ -32,7 +32,7 @@ public class ValidatingHierarchicalClaimsExtractor {
 
     public static final String WRAPPED_TOKEN_KEY = "jwt";
 
-    public static final List<String> AUTHORIZATION_CLAIMS = List.of("scope", "authorization");
+    public static final List<String> AUTHORIZATION_CLAIMS = List.of("scope", "authorization", "roles");
 
     private final TokenProcessor tokenProcessor;
 
