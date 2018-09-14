@@ -13,28 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.mercateo.spring.security.jwt.token.claim;
+package com.mercateo.spring.security.jwt.security;
 
+import com.mercateo.immutables.ValueStyle;
 import org.immutables.value.Value;
-
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.mercateo.immutables.DataClass;
-
-import io.vavr.collection.Map;
+import org.springframework.security.core.GrantedAuthority;
 
 @Value.Immutable
-@DataClass
-public interface JWTClaims {
-    static ImmutableJWTClaims.Builder builder() {
-        return ImmutableJWTClaims.builder();
-    }
-
-    DecodedJWT token();
-
-    Map<String, JWTClaim> claims();
-
-    @Value.Default
-    default int verifiedCount() {
-        return 0;
-    }
+@ValueStyle
+public interface _JWTAuthority extends GrantedAuthority {
 }

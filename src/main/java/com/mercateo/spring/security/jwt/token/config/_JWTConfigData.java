@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.mercateo.spring.security.jwt.token.exception;
+package com.mercateo.spring.security.jwt.token.config;
 
-import org.springframework.security.core.AuthenticationException;
+import org.immutables.value.Value;
 
-public class TokenException extends AuthenticationException {
-    TokenException(String message) {
-        super(message);
-    }
+import com.mercateo.immutables.ValueStyle;
 
-    TokenException(String message, Throwable throwable) {
-        super(message, throwable);
-    }
+@Value.Immutable
+@ValueStyle
+public interface _JWTConfigData extends JWTConfig {
 }

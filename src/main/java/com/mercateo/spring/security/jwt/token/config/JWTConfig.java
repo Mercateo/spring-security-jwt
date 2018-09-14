@@ -44,13 +44,6 @@ public interface JWTConfig {
     Set<String> getTokenAudiences();
 
     /**
-     * Namespaces where claims are searched for
-     * 
-     * @return list of namespaces
-     */
-    Set<String> getNamespaces();
-
-    /**
      * @return set of required claims
      */
     Set<String> getRequiredClaims();
