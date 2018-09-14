@@ -13,16 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.mercateo.spring.security.jwt.token.config;
+package com.mercateo.spring.security.jwt.token.claim;
 
+import com.mercateo.immutables.ValueStyle;
 import org.immutables.value.Value;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mercateo.immutables.DataClass;
 
+import io.vavr.collection.Map;
+
 @Value.Immutable
-@DataClass
-public interface JWTConfigData extends JWTConfig {
-    static ImmutableJWTConfigData.Builder builder() {
-        return ImmutableJWTConfigData.builder();
+@ValueStyle
+public interface _JWTClaims {
+    DecodedJWT token();
+
+    Map<String, JWTClaim> claims();
+
+    @Value.Default
+    default int verifiedCount() {
+        return 0;
     }
 }

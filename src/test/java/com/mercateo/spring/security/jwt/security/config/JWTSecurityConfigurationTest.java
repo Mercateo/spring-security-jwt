@@ -31,7 +31,7 @@ public class JWTSecurityConfigurationTest {
     static class TestConfiguration {
         @Bean
         public JWTSecurityConfig securityConfig() {
-            return JWTSecurityConfig.builder().setValueJwtKeyset(mock(JWTKeyset.class)).build();
+            return JWTSecurityConfig.builder().jwtKeyset(mock(JWTKeyset.class)).build();
         }
     }
 }

@@ -47,9 +47,9 @@ public class ValidatingHierarchicalClaimsExtractorTest {
         return JWTConfigData
             .builder()
             // .addAnonymousPaths("/admin/app_health")
-            .setValueJwtKeyset(mock(JWTKeyset.class))
-            .addNamespaces("https://test.org/")
+            .jwtKeyset(mock(JWTKeyset.class))
             .addRequiredClaims("foo")
+            .addOptionalClaims("https://test.org/bar")
             .build();
     }
 
@@ -61,8 +61,8 @@ public class ValidatingHierarchicalClaimsExtractorTest {
 
         val securityConfig = securityConfig();
 
-        jwks = Option.of(securityConfig).flatMap(JWTConfig::jwtKeyset).getOrElseThrow(
-                () -> new IllegalStateException("could not fetch jwks mock"));
+        jwks = Option.of(securityConfig).flatMap(JWTConfig::jwtKeyset).getOrElseThrow(() -> new IllegalStateException(
+                "could not fetch jwks mock"));
         when(jwks.getKeysetForId(KEY_ID)).thenReturn(Try.success(jwk));
 
         uut = new ValidatingHierarchicalClaimsExtractor(securityConfig);
@@ -104,34 +104,31 @@ public class ValidatingHierarchicalClaimsExtractorTest {
     @Test
     public void extractsClaimsOfDifferentType() throws Exception {
         val securityConfig = JWTConfigData
-                .builder()
-                //.addAnonymousPaths("/admin/app_health")
-                .setValueJwtKeyset(mock(JWTKeyset.class))
-                .addNamespaces("https://test.org/")
-                .addRequiredClaims("string")
-                .addRequiredClaims("float")
-                .addRequiredClaims("int")
-                .addRequiredClaims("object")
-                .build();
+            .builder()
+            .jwtKeyset(mock(JWTKeyset.class))
+            .addRequiredClaims("string")
+            .addRequiredClaims("float")
+            .addRequiredClaims("int")
+            .addRequiredClaims("object")
+            .build();
         uut = new ValidatingHierarchicalClaimsExtractor(securityConfig);
 
         final Method addClaim = JWTCreator.Builder.class.getDeclaredMethod("addClaim", String.class, Object.class);
         addClaim.setAccessible(true);
 
         final JWTCreator.Builder builder = signedJwtBuilder()
-                .withClaim("string", "test")
-                .withClaim("float", 1.1)
-                .withClaim("int", 12);
+            .withClaim("string", "test")
+            .withClaim("float", 1.1)
+            .withClaim("int", 12);
         final HashMap<String, Object> objectClaim = new HashMap<>();
         objectClaim.put("foo", 1.2);
         objectClaim.put("bar", "test");
         addClaim.invoke(builder, "object", objectClaim);
 
-        val tokenString = builder
-                .sign(algorithm);
+        val tokenString = builder.sign(algorithm);
 
-        jwks = Option.of(securityConfig).flatMap(JWTConfig::jwtKeyset).getOrElseThrow(
-                () -> new IllegalStateException("could not fetch jwks mock"));
+        jwks = Option.of(securityConfig).flatMap(JWTConfig::jwtKeyset).getOrElseThrow(() -> new IllegalStateException(
+                "could not fetch jwks mock"));
         when(jwks.getKeysetForId(KEY_ID)).thenReturn(Try.success(jwk));
 
         val claims = uut.extractClaims(tokenString);
@@ -145,19 +142,24 @@ public class ValidatingHierarchicalClaimsExtractorTest {
 
     @Test
     public void extractsNamespacedClaims() throws Exception {
-        val tokenString = signedJwtBuilder().withClaim("scope", "test").withClaim("https://test.org/foo", "<foo>").sign(
-                algorithm);
+        val tokenString = signedJwtBuilder() //
+            .withClaim("scope", "test")
+            .withClaim("foo", "<foo>")
+            .withClaim("https://test.org/bar", "<bar>")
+            .sign(algorithm);
 
         val claims = uut.extractClaims(tokenString);
 
-        assertThat(claims.claims().keySet()).containsExactlyInAnyOrder("scope", "foo");
-        assertClaimContent(getClaimByName(claims, "foo"), "<foo>", true, 0);
+        assertThat(claims.claims().keySet()).containsExactlyInAnyOrder("scope", "foo", "https://test.org/bar");
+        assertClaimContent(getClaimByName(claims, "https://test.org/bar"), "<bar>", true, 0);
     }
 
     @Test
     public void mergesClaimsFromInnerAndOuterToken() throws Exception {
-        val wrappedTokenString = signedJwtBuilder().withClaim("scope", "test").withClaim("foo", "<foo>").sign(
-                algorithm);
+        val wrappedTokenString = signedJwtBuilder() //
+            .withClaim("scope", "test")
+            .withClaim("foo", "<foo>")
+            .sign(algorithm);
 
         val tokenString = unsignedJwtBuilder()
             .withClaim("scope", "test test2")
@@ -174,8 +176,10 @@ public class ValidatingHierarchicalClaimsExtractorTest {
 
     @Test
     public void keepsClaimsFromInnerTokenAsInnerClaims() throws Exception {
-        val wrappedTokenString = signedJwtBuilder().withClaim("scope", "test").withClaim("foo", "<foo>").sign(
-                algorithm);
+        val wrappedTokenString = signedJwtBuilder() //
+            .withClaim("scope", "test")
+            .withClaim("foo", "<foo>")
+            .sign(algorithm);
 
         val tokenString = unsignedJwtBuilder()
             .withClaim("scope", "test test2")
@@ -222,8 +226,8 @@ public class ValidatingHierarchicalClaimsExtractorTest {
         val tokenString = "<token>";
 
         assertThatThrownBy(() -> uut.extractClaims(tokenString)) //
-                .isInstanceOf(InvalidTokenException.class)
-                .hasMessage("could not decode token");
+            .isInstanceOf(InvalidTokenException.class)
+            .hasMessage("could not decode token");
     }
 
     @Test
