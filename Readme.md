@@ -10,14 +10,14 @@ How to add JWT support to your project.
 
 ## Simple Example
 ```
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJpc3MiOiJuYW1lIiwic3ViIjoic3ViamVjdCJ9.teWF_9A5bY8DCZG23AvyiSZhPVfozbFvhx01AVY-Bb0
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaHR0cHM6Ly90ZXN0Lm9yZy9mb28iOiJiYXIiLCJpYXQiOjE1MTYyMzkwMjJ9.Ujx0Lo-2PjRMXd3xBh1kyf7XEOmGK2LttJJPDL1A4J4
 ```
 contains payload
 ```
 {
-  "foo": "bar",
-  "iss": "name",
-  "sub": "subject"
+  "sub": "1234567890",
+  "https://test.org/foo": "bar",
+  "iat": 1516239022
 }
 ```
 see e.g. https://jwt.io/
@@ -36,8 +36,7 @@ public class MyConfiguration {
         return JWTSecurityConfig.builder() //
                 .addAnonymousPaths("/admin/app_health") //
                 .addAnonymousMethods(HttpMethod.OPTIONS) //
-                .addNamespaces("https://test.org/") //
-                .addRequiredClaims("foo") //
+                .addRequiredClaims("https://test.org/foo") //
                 .addTokenAudiences("https://test.org/api") //
                 .withTokenLeeway(300) //
                 .build();
@@ -53,7 +52,7 @@ Access the principal object to get claims from the token:
         final JWTPrincipal principal = JWTPrincipal.fromContext();
 
         log.info("principal foo {} with scopes '{}'",
-              principal.getClaim("foo"),
+              principal.getClaim("https://test.org/foo"),
               principal.getAuthorities());
 ```
 
@@ -72,10 +71,9 @@ public class MyConfiguration {
             .builder()
             .addAnonymousPaths("/admin/app_health")
             .addAnonymousMethods(HttpMethod.OPTIONS)
-            .setValueJwtKeyset(new Auth0JWTKeyset(auth0Domain))
-            .addNamespaces("https://test.org/")
-            .addRequiredClaims("foo")
-            .addRequiredClaims("bar")
+            .jwtKeyset(new Auth0JWTKeyset(auth0Domain))
+            .addRequiredClaims("https://test.org/foo")
+            .addRequiredClaims("https://test.org/bar")
             .addTokenAudiences("https://test.org/api")
             .withTokenLeeway(300)
             .build();
