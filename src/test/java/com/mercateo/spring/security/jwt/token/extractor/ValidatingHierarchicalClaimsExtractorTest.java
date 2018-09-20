@@ -81,7 +81,7 @@ public class ValidatingHierarchicalClaimsExtractorTest {
     }
 
     private void assertClaimContent(JWTClaim claim, Object value, boolean verified, int depth) {
-        assertThat(claim).extracting(JWTClaim::value).contains(value);
+        assertThat(claim).extracting(JWTClaim::value).isEqualTo(value);
         assertThat(claim.verified()).isEqualTo(verified);
         assertThat(claim.depth()).isEqualTo(depth);
     }
