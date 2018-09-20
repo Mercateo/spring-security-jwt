@@ -19,6 +19,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
 
+import com.mercateo.spring.security.jwt.data.ClaimName;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -106,5 +107,9 @@ public class JWTPrincipal implements UserDetails {
 
     public Option<JWTClaim> getClaim(String key) {
         return claims.get(key);
+    }
+
+    public Option<JWTClaim> getClaim(ClaimName claimName) {
+        return getClaim(claimName.getValue());
     }
 }
