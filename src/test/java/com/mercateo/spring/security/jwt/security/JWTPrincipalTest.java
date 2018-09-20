@@ -45,7 +45,7 @@ public class JWTPrincipalTest {
 
     @Test
     public void returnsClaimByNameEnum() {
-        assertThat(uut.getClaim(Claims.FOO_BAR)).extracting(JWTClaim::issuer).containsExactly("<foo_bar>");
+        assertThat(uut.getClaim(Claims.FOO_BAR)).extracting(JWTClaim::issuer).containsExactly("<issuer>");
     }
 
     enum Claims implements ClaimName {
