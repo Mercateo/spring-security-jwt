@@ -72,6 +72,26 @@ public class JWTAuthenticationProviderTest {
     }
 
     @Test
+    public void shouldMapRolesToGrantedAuthorities() throws Exception {
+        val tokenString = JWT.create().sign(Algorithm.none());
+        val tokenContainer = new JWTAuthenticationToken(tokenString);
+
+        final Map<String, JWTClaim> claimsMap = HashMap.of( //
+                "roles", JWTClaim.builder().name("roles").value(new Object[]{"foo", "bar"}).build());
+
+        JWTClaims claims = JWTClaims.builder().claims(claimsMap).token(JWT.decode(tokenString)).build();
+        when(hierarchicalJWTClaimsExtractor.extractClaims(tokenString)).thenReturn(claims);
+
+        val userDetails = uut.retrieveUser("<username>", tokenContainer);
+
+        assertThat(userDetails).isNotNull();
+        assertThat(userDetails.getUsername()).isNull();
+        assertThat(((JWTPrincipal) userDetails).getToken()).isEqualTo(tokenString);
+        assertThat(userDetails.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsExactlyInAnyOrder(
+                "ROLE_FOO", "ROLE_BAR");
+    }
+
+    @Test
     public void shouldSupportJWTAuthToken() throws Exception {
         assertThat(uut.supports(JWTAuthenticationToken.class)).isTrue();
     }
