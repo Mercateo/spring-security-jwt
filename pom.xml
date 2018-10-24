@@ -10,7 +10,7 @@
 
     <artifactId>spring-security-jwt</artifactId>
     <groupId>com.mercateo.spring</groupId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
 
     <name>spring-security-jwt</name>
     <packaging>jar</packaging>
