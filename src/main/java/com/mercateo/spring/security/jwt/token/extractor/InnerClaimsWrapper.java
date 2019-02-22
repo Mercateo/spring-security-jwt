@@ -16,31 +16,30 @@
 package com.mercateo.spring.security.jwt.token.extractor;
 
 import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
-
 import io.vavr.collection.List;
-import io.vavr.collection.Map;
-import io.vavr.control.Option;
+
+import java.util.Map;
+import java.util.Optional;
 
 class InnerClaimsWrapper {
 
     Map<String, JWTClaim> wrapInnerClaims(List<JWTClaim> claims) {
-        return claims.groupBy(JWTClaim::name).mapValues(this::wrapGroupedClaims);
+        return claims.groupBy(JWTClaim::name).mapValues(this::wrapGroupedClaims).toJavaMap();
     }
 
     private JWTClaim wrapGroupedClaims(List<JWTClaim> claims) {
         final List<JWTClaim> reverse = claims.reverse();
 
-        Option<JWTClaim> innerClaim = Option.none();
+        Optional<JWTClaim> innerClaim = Optional.empty();
 
         for (JWTClaim jwtClaim : reverse) {
-            innerClaim = Option.some(JWTClaim //
-                .builder()
-                .from(jwtClaim)
-                .innerClaim(innerClaim)
-                .build());
+            innerClaim = Optional.of(JWTClaim //
+                    .builder()
+                    .from(jwtClaim)
+                    .innerClaim(innerClaim)
+                    .build());
         }
 
-        // noinspection ConstantConditions
         return innerClaim.get();
     }
 }

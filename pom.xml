@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -10,7 +11,7 @@
 
     <artifactId>spring-security-jwt</artifactId>
     <groupId>com.mercateo.spring</groupId>
-    <version>1.0.6-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
 
     <name>spring-security-jwt</name>
     <packaging>jar</packaging>
@@ -64,15 +65,16 @@
         <connection>scm:git:git@github.com:Mercateo/spring-security-jwt.git</connection>
         <developerConnection>scm:git:git@github.com:Mercateo/spring-security-jwt.git</developerConnection>
         <url>https://github.com/Mercateo/spring-security-jwt.git</url>
-        <tag>spring-security-jwt-1.0.4</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring-security.version>5.0.8.RELEASE</spring-security.version>
-        <spring.version>5.0.9.RELEASE</spring.version>
-        <jackson.version>2.9.7</jackson.version>
+        <spring-security.version>5.1.4.RELEASE</spring-security.version>
+        <spring.version>5.1.5.RELEASE</spring.version>
+        <jackson.version>2.9.8</jackson.version>
+        <immutables.version>2.7.5</immutables.version>
     </properties>
 
     <build>
@@ -84,7 +86,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
+                <version>3.8.0</version>
                 <configuration>
                     <compilerVersion>1.8</compilerVersion>
                     <source>1.8</source>
@@ -122,11 +124,15 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <doclint>none</doclint>
+                    <source>8</source>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.1.1</version>
                 <executions>
                     <execution>
                         <goals>
@@ -138,7 +144,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.2</version>
+                <version>0.8.3</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
@@ -152,11 +158,18 @@
                 <groupId>org.eluder.coveralls</groupId>
                 <artifactId>coveralls-maven-plugin</artifactId>
                 <version>4.3.0</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>jaxb-api</artifactId>
+                        <version>2.3.1</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.0</version>
+                <version>2.22.1</version>
                 <configuration>
                     <excludes>
                         <exclude>**/*ITest.java</exclude>
@@ -166,7 +179,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.22.0</version>
+                <version>2.22.1</version>
                 <executions>
                     <execution>
                         <goals>
@@ -180,6 +193,27 @@
                     </includes>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>io.vavr</pattern>
+                                    <shadedPattern>com.mercateo.spring.security.jwt.relocated.io.vavr</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -187,7 +221,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.2</version>
+            <version>1.18.6</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -197,9 +231,49 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.immutables</groupId>
+            <artifactId>value</artifactId>
+            <version>${immutables.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.immutables</groupId>
+            <artifactId>value-annotations</artifactId>
+            <version>${immutables.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.immutables.vavr</groupId>
+            <artifactId>vavr-encodings</artifactId>
+            <version>0.6.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>value</artifactId>
+                    <groupId>org.immutables</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.vavr</groupId>
+                    <artifactId>vavr</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>com.mercateo</groupId>
             <artifactId>default-immutables</artifactId>
-            <version>1.2.4</version>
+            <version>1.2.5</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>value</artifactId>
+                    <groupId>org.immutables</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>value-annotations</artifactId>
+                    <groupId>org.immutables</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.immutables.vavr</groupId>
+                    <artifactId>vavr-encodings</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -237,17 +311,17 @@
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-            <version>3.4.0</version>
+            <version>3.7.0</version>
         </dependency>
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>jwks-rsa</artifactId>
-            <version>0.6.0</version>
+            <version>0.7.0</version>
         </dependency>
         <dependency>
             <groupId>io.vavr</groupId>
             <artifactId>vavr</artifactId>
-            <version>0.9.2</version>
+            <version>0.10.0</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -264,19 +338,19 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.11.1</version>
+            <version>3.12.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>2.22.0</version>
+            <version>2.24.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
-            <version>1.60</version>
+            <version>1.61</version>
             <scope>test</scope>
         </dependency>
         <dependency>
