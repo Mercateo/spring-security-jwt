@@ -15,13 +15,12 @@
  */
 package com.mercateo.spring.security.jwt.token.claim;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mercateo.immutables.ValueStyle;
 import org.immutables.value.Value;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.mercateo.immutables.DataClass;
+import java.util.Map;
 
-import io.vavr.collection.Map;
 
 @Value.Immutable
 @ValueStyle

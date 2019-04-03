@@ -15,25 +15,24 @@
  */
 package com.mercateo.spring.security.jwt.security;
 
-import java.util.Objects;
-
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import com.auth0.jwt.JWT;
 import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
 import com.mercateo.spring.security.jwt.token.claim.JWTClaims;
 import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
 import com.mercateo.spring.security.jwt.token.exception.TokenException;
 import com.mercateo.spring.security.jwt.token.extractor.ValidatingHierarchicalClaimsExtractor;
-
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import lombok.AllArgsConstructor;
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Objects;
 
 @Slf4j
 @AllArgsConstructor
@@ -48,7 +47,7 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
 
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails,
-            UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+                                                  UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
         // intentionally left blank
     }
 
@@ -84,33 +83,33 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
         val scopes = extractScopes(claims);
         val roles = extractRoles(claims);
         return List //
-            .ofAll(scopes)
-            .appendAll(roles)
-            .map(value -> JWTAuthority.builder().authority(value).build());
+                .ofAll(scopes)
+                .appendAll(roles)
+                .map(value -> JWTAuthority.builder().authority(value).build());
     }
 
     private List<String> extractScopes(JWTClaims claims) {
-        return claims
-            .claims()
-            .get("scope")
-            .map(JWTClaim::value)
-            .filter(Objects::nonNull)
-            .map(value -> ((String) value).split("\\s+"))
-            .map(List::of)
-            .getOrElse(List.empty());
+        return Option.of(claims
+                .claims()
+                .get("scope"))
+                .map(JWTClaim::value)
+                .filter(Objects::nonNull)
+                .map(value -> ((String) value).split("\\s+"))
+                .map(List::of)
+                .getOrElse(List.empty());
     }
 
     private List<String> extractRoles(JWTClaims claims) {
-        return claims
-            .claims()
-            .get("roles")
-            .map(JWTClaim::value)
-            .filter(Objects::nonNull)
-            .map(container -> (Object[]) container)
-            .map(List::of)
-            .map(list -> list //
-                .map(element -> "ROLE_" + element)
-                .map(String::toUpperCase))
-            .getOrElse(List.empty());
+        return Option.of(claims
+                .claims()
+                .get("roles"))
+                .map(JWTClaim::value)
+                .filter(Objects::nonNull)
+                .map(container -> (Object[]) container)
+                .map(List::of)
+                .map(list -> list //
+                        .map(element -> "ROLE_" + element)
+                        .map(String::toUpperCase))
+                .getOrElse(List.empty());
     }
 }

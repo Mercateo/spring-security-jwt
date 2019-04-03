@@ -15,21 +15,19 @@
  */
 package com.mercateo.spring.security.jwt.security;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.Collection;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mercateo.spring.security.jwt.data.ClaimName;
+import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
+import io.vavr.collection.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
 
-import io.vavr.collection.List;
-import io.vavr.collection.Map;
-import io.vavr.control.Option;
+import static java.util.Objects.requireNonNull;
 
 public class JWTPrincipal implements UserDetails {
 
@@ -44,7 +42,7 @@ public class JWTPrincipal implements UserDetails {
     private final Map<String, JWTClaim> claims;
 
     public JWTPrincipal(long id, String username, String token, List<? extends GrantedAuthority> authorities,
-            Map<String, JWTClaim> claims) {
+                        Map<String, JWTClaim> claims) {
         this.id = Long.valueOf(id);
         this.username = username;
         this.token = token;
@@ -97,7 +95,7 @@ public class JWTPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities.toJavaList();
+        return authorities.asJava();
     }
 
     @Override
@@ -105,11 +103,11 @@ public class JWTPrincipal implements UserDetails {
         return null;
     }
 
-    public Option<JWTClaim> getClaim(String key) {
-        return claims.get(key);
+    public Optional<JWTClaim> getClaim(String key) {
+        return Optional.ofNullable(claims.get(key));
     }
 
-    public Option<JWTClaim> getClaim(ClaimName claimName) {
+    public Optional<JWTClaim> getClaim(ClaimName claimName) {
         return getClaim(claimName.getValue());
     }
 }

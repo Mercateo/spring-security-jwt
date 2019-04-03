@@ -36,8 +36,8 @@ public class JWTAuthenticationProviderTest {
         val tokenString = JWT.create().withSubject("<subject>").sign(Algorithm.none());
         val tokenContainer = new JWTAuthenticationToken(tokenString);
 
-        final Map<String, JWTClaim> claimsMap = HashMap.of( //
-                "bar", JWTClaim.builder().value("baz").name("bar").build());
+        final java.util.Map<String, JWTClaim> claimsMap = HashMap.of( //
+                "bar", JWTClaim.builder().value("baz").name("bar").build()).toJavaMap();
 
         JWTClaims claims = JWTClaims.builder().claims(claimsMap).token(JWT.decode(tokenString)).build();
 
@@ -56,8 +56,8 @@ public class JWTAuthenticationProviderTest {
         val tokenString = JWT.create().sign(Algorithm.none());
         val tokenContainer = new JWTAuthenticationToken(tokenString);
 
-        final Map<String, JWTClaim> claimsMap = HashMap.of( //
-                "scope", JWTClaim.builder().name("scope").value("foo bar").build());
+        final java.util.Map<String, JWTClaim> claimsMap = HashMap.of( //
+                "scope", JWTClaim.builder().name("scope").value("foo bar").build()).toJavaMap();
 
         JWTClaims claims = JWTClaims.builder().claims(claimsMap).token(JWT.decode(tokenString)).build();
         when(hierarchicalJWTClaimsExtractor.extractClaims(tokenString)).thenReturn(claims);
@@ -76,8 +76,8 @@ public class JWTAuthenticationProviderTest {
         val tokenString = JWT.create().sign(Algorithm.none());
         val tokenContainer = new JWTAuthenticationToken(tokenString);
 
-        final Map<String, JWTClaim> claimsMap = HashMap.of( //
-                "roles", JWTClaim.builder().name("roles").value(new Object[]{"foo", "bar"}).build());
+        final java.util.Map<String, JWTClaim> claimsMap = HashMap.of( //
+                "roles", JWTClaim.builder().name("roles").value(new Object[]{"foo", "bar"}).build()).toJavaMap();
 
         JWTClaims claims = JWTClaims.builder().claims(claimsMap).token(JWT.decode(tokenString)).build();
         when(hierarchicalJWTClaimsExtractor.extractClaims(tokenString)).thenReturn(claims);
