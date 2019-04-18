@@ -15,6 +15,8 @@
  */
 package com.mercateo.spring.security.jwt.security;
 
+import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
+
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
@@ -22,33 +24,53 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-
-import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
-
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.security.authentication.AnonymousAuthenticationProvider;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.util.AntPathMatcher;
+
+import io.vavr.collection.Set;
 
 @Slf4j
 public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessingFilter {
 
     private final static String TOKEN_HEADER = "authorization";
 
-    public JWTAuthenticationTokenFilter() {
+    private final AntPathMatcher antPathMatcher =  new AntPathMatcher();
+
+    @NonNull
+    private Set<String> unauthenticatedPaths;
+
+    public JWTAuthenticationTokenFilter(@NonNull Set<String> unauthenticatedPaths) {
         super("/**");
+        this.unauthenticatedPaths = unauthenticatedPaths;
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
-        String header = request.getHeader(TOKEN_HEADER);
+        String tokenHeader = request.getHeader(TOKEN_HEADER);
 
-        if (header == null || !header.startsWith("Bearer ")) {
+        if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
             final String pathInfo = request.getPathInfo();
+            final String servletPath = request.getServletPath();
+
             log.warn("no JWT token found {}{} ({})", request.getServletPath(), pathInfo != null ? pathInfo : "",
-                    header);
-            throw new InvalidTokenException("no token");
+                    tokenHeader);
+
+            if (unauthenticatedPaths.toJavaStream().filter(path -> antPathMatcher.match(path, servletPath)).count() == 0) {
+                throw new InvalidTokenException("no token");
+            } else {
+                AnonymousAuthenticationProvider anonymProvider = new AnonymousAuthenticationProvider("anonymousUser");
+                return anonymProvider.authenticate(new AnonymousAuthenticationToken("anonymousUser",
+                     "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
+            }
         } else {
-            String authToken = header.split("\\s+")[1];
+            String authToken = tokenHeader.split("\\s+")[1];
 
             return getAuthenticationManager().authenticate(new JWTAuthenticationToken(authToken));
         }

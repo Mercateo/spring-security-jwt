@@ -15,8 +15,18 @@
  */
 package com.mercateo.spring.security.jwt.security.config;
 
+import com.mercateo.spring.security.jwt.security.JWTAuthenticationEntryPoint;
+import com.mercateo.spring.security.jwt.security.JWTAuthenticationProvider;
+import com.mercateo.spring.security.jwt.security.JWTAuthenticationSuccessHandler;
+import com.mercateo.spring.security.jwt.security.JWTAuthenticationTokenFilter;
+import com.mercateo.spring.security.jwt.token.extractor.ValidatingHierarchicalClaimsExtractor;
+
 import java.util.Collections;
 import java.util.Optional;
+import io.vavr.collection.Set;
+
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,15 +39,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.mercateo.spring.security.jwt.security.JWTAuthenticationEntryPoint;
-import com.mercateo.spring.security.jwt.security.JWTAuthenticationProvider;
-import com.mercateo.spring.security.jwt.security.JWTAuthenticationSuccessHandler;
-import com.mercateo.spring.security.jwt.security.JWTAuthenticationTokenFilter;
-import com.mercateo.spring.security.jwt.token.extractor.ValidatingHierarchicalClaimsExtractor;
-
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableWebSecurity
@@ -72,9 +73,11 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     public JWTAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
-        JWTAuthenticationTokenFilter authenticationTokenFilter = new JWTAuthenticationTokenFilter();
+
+        JWTAuthenticationTokenFilter authenticationTokenFilter = new JWTAuthenticationTokenFilter(config.get().anonymousPaths());
         authenticationTokenFilter.setAuthenticationManager(authenticationManager());
         authenticationTokenFilter.setAuthenticationSuccessHandler(new JWTAuthenticationSuccessHandler());
+
         jwtSecurityConfig().authenticationFailureHandler().forEach(
                 authenticationTokenFilter::setAuthenticationFailureHandler);
 
@@ -126,8 +129,6 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers(getUnauthenticatedPaths());
-
         config.ifPresent(config -> config.anonymousMethods().forEach(method -> web.ignoring().antMatchers(method)));
     }
 
