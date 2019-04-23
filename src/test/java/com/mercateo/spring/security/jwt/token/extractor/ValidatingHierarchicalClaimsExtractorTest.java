@@ -77,7 +77,7 @@ public class ValidatingHierarchicalClaimsExtractorTest {
     }
 
     private JWTClaim getClaimByName(JWTClaims claims, String name) {
-        return claims.claims().get(name).get();
+        return claims.claims().get(name);
     }
 
     private void assertClaimContent(JWTClaim claim, Object value, boolean verified, int depth) {

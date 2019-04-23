@@ -21,6 +21,8 @@ import com.mercateo.immutables.ValueStyle;
 
 import io.vavr.control.Option;
 
+import java.util.Optional;
+
 @Value.Immutable
 @ValueStyle
 public interface _JWTClaim {
@@ -38,7 +40,7 @@ public interface _JWTClaim {
         return false;
     }
 
-    Option<JWTClaim> innerClaim();
+    Optional<JWTClaim> innerClaim();
 
     @Value.Default
     default int depth() {

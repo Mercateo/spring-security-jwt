@@ -16,8 +16,12 @@
 package com.mercateo.spring.security.jwt.token.verifier;
 
 import java.security.Key;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 
 import com.auth0.jwk.Jwk;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -28,7 +32,6 @@ import com.mercateo.spring.security.jwt.token.keyset.JWTKeyset;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
-import sun.security.rsa.RSAPublicKeyImpl;
 
 @AllArgsConstructor
 @Slf4j
@@ -49,7 +52,7 @@ public class JWTVerifierFactory {
                     .getKeysetForId(keyId)
                     .mapTry(Jwk::getPublicKey)
                     .map(Key::getEncoded)
-                    .mapTry(RSAPublicKeyImpl::new)
+                    .mapTry(JWTVerifierFactory::createKey)
                     .onFailure(e -> log.warn("Error getting public key for id " + keyId, e))
                     .getOrElseThrow(JWTVerifierFactory::map);
             }
@@ -74,9 +77,14 @@ public class JWTVerifierFactory {
 
         val tokenAudiences = config.getTokenAudiences();
         if (tokenAudiences.nonEmpty()) {
-            verification.withAudience(tokenAudiences.toJavaArray(String.class));
+            verification.withAudience(tokenAudiences.toJavaArray(String[]::new));
         }
 
         return verification.build();
+    }
+
+    private static RSAPublicKey createKey(byte[] bytes ) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(
+                new X509EncodedKeySpec(bytes));
     }
 }
