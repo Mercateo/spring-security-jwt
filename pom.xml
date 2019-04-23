@@ -11,7 +11,7 @@
 
     <artifactId>spring-security-jwt</artifactId>
     <groupId>com.mercateo.spring</groupId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.0.6-SNAPSHOT</version>
 
     <name>spring-security-jwt</name>
     <packaging>jar</packaging>
@@ -146,6 +146,9 @@
                     <skipProvidedScope>true</skipProvidedScope>
                     <skipTestScope>true</skipTestScope>
                     <skipSystemScope>true</skipSystemScope>
+                    <suppressionFiles>
+                        <suppressionFile>owasp-suppression.xml</suppressionFile>
+                    </suppressionFiles>
                 </configuration>
             </plugin>
 

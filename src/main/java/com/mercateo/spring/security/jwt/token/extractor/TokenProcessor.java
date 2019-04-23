@@ -23,7 +23,6 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
-import com.mercateo.spring.security.jwt.token.exception.TokenException;
 import io.vavr.control.Option;
 
 class TokenProcessor {

@@ -23,7 +23,6 @@ import com.mercateo.spring.security.jwt.token.extractor.ValidatingHierarchicalCl
 
 import java.util.Collections;
 import java.util.Optional;
-import io.vavr.collection.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

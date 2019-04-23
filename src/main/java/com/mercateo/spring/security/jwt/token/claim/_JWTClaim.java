@@ -19,8 +19,6 @@ import org.immutables.value.Value;
 
 import com.mercateo.immutables.ValueStyle;
 
-import io.vavr.control.Option;
-
 import java.util.Optional;
 
 @Value.Immutable

@@ -19,7 +19,6 @@ import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
 import com.mercateo.spring.security.jwt.token.extractor.ValidatingHierarchicalClaimsExtractor;
 
 import io.vavr.collection.HashMap;
-import io.vavr.collection.Map;
 import lombok.val;
 
 @RunWith(MockitoJUnitRunner.class)
