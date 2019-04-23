@@ -59,10 +59,12 @@ public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessi
             final String pathInfo = request.getPathInfo();
             final String servletPath = request.getServletPath();
 
-            log.warn("no JWT token found {}{} ({})", request.getServletPath(), pathInfo != null ? pathInfo : "",
-                    tokenHeader);
+            // request URL depends on the default servlet or mounted location
+            final String pathToCheck = servletPath != null ? servletPath : pathInfo;
 
-            if (unauthenticatedPaths.toJavaStream().filter(path -> antPathMatcher.match(path, servletPath)).count() == 0) {
+            log.warn("no JWT token found {} ({})", pathToCheck, tokenHeader);
+
+            if (unauthenticatedPaths.toJavaStream().filter(path -> antPathMatcher.match(path, pathToCheck)).count() == 0) {
                 throw new InvalidTokenException("no token");
             } else {
                 AnonymousAuthenticationProvider anonymProvider = new AnonymousAuthenticationProvider("anonymousUser");
