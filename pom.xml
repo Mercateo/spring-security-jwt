@@ -71,6 +71,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <!-- -->
         <spring-security.version>5.1.5.RELEASE</spring-security.version>
         <spring.version>5.1.6.RELEASE</spring.version>
         <jackson.version>2.9.8</jackson.version>
@@ -80,14 +81,14 @@
         <vavr-encodings.version>0.6.0</vavr-encodings.version>
         <default-immutables.version>1.2.5</default-immutables.version>
         <java-jwt.version>3.8.0</java-jwt.version>
-        <jwks-rsa.version>0.7.0</jwks-rsa.version>
+        <jwks-rsa.version>0.8.0</jwks-rsa.version>
         <vavr.version>0.10.0</vavr.version>
         <slf4j-api.version>1.7.25</slf4j-api.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <!-- test -->
         <junit.version>4.12</junit.version>
         <assertj-core.version>3.12.2</assertj-core.version>
-        <mockito-core.version>2.25.1</mockito-core.version>
+        <mockito-core.version>2.27.0</mockito-core.version>
         <bcprov-jdk15on.version>1.61</bcprov-jdk15on.version>
         <logback-classic.version>1.2.3</logback-classic.version>
         <!-- plugin -->
@@ -146,6 +147,9 @@
                     <skipProvidedScope>true</skipProvidedScope>
                     <skipTestScope>true</skipTestScope>
                     <skipSystemScope>true</skipSystemScope>
+                    <suppressionFiles>
+                        <suppressionFile>owasp-suppression.xml</suppressionFile>
+                    </suppressionFiles>
                 </configuration>
             </plugin>
 
@@ -259,6 +263,22 @@
                                     <shadedPattern>com.mercateo.spring.security.jwt.relocated.io.vavr</shadedPattern>
                                 </relocation>
                             </relocations>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.slf4j:slf4j-api:*</exclude>
+                                    <exclude>com.fasterxml.jackson.*</exclude>
+                                    <exclude>com.google.guava:*</exclude>
+                                    <exclude>javax.annotation:*</exclude>
+                                    <exclude>com.google.code.findbugs:*</exclude>
+                                    <exclude>commons-io:commons-io:*</exclude>
+                                    <exclude>org.springframework:*</exclude>
+                                    <exclude>org.checkerframework:*</exclude>
+                                    <exclude>commons-codec:commons-codec:*</exclude>
+                                    <exclude>com.google.j2objc:*</exclude>
+                                    <exclude>com.google.errorprone:*</exclude>
+                                    <exclude>org.codehaus.mojo:*</exclude>
+                                </excludes>
+                            </artifactSet>
                         </configuration>
                     </execution>
                 </executions>
