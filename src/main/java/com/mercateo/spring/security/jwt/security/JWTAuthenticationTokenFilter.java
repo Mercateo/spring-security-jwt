@@ -56,11 +56,11 @@ public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessi
         String tokenHeader = request.getHeader(TOKEN_HEADER);
 
         if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
-            final String pathInfo = request.getPathInfo();
-            final String servletPath = request.getServletPath();
+            final String pathInfo = String.valueOf(request.getPathInfo()).replace("null","");
+            final String servletPath = String.valueOf(request.getServletPath()).replace("null","");
 
             // request URL depends on the default servlet or mounted location
-            final String pathToCheck = pathInfo != null ? pathInfo : servletPath;
+            final String pathToCheck = servletPath + pathInfo;
 
             log.warn("no JWT token found {} ({})", pathToCheck, tokenHeader);
 
