@@ -41,8 +41,8 @@ public class JWTAuthenticationTokenFilterTest {
     @Test
     public void throwsWithoutToken() throws Exception {
         assertThatThrownBy(() -> uut.attemptAuthentication(request, response))
-            .isInstanceOf(InvalidTokenException.class)
-            .hasMessage("no token");
+                .isInstanceOf(InvalidTokenException.class)
+                .hasMessage("no token");
     }
 
     @Test
@@ -51,7 +51,8 @@ public class JWTAuthenticationTokenFilterTest {
         when(request.getHeader("authorization")).thenReturn("Bearer " + tokenString);
         uut.setAuthenticationManager(authenticationManager);
         val authentication = mock(Authentication.class);
-        when(authenticationManager.authenticate(new JWTAuthenticationToken(tokenString))).thenReturn(authentication);
+        when(authenticationManager.authenticate(new JWTAuthenticationToken(tokenString)))
+                .thenReturn(authentication);
 
         val result = uut.attemptAuthentication(request, response);
 
@@ -78,6 +79,18 @@ public class JWTAuthenticationTokenFilterTest {
         val result = uut.attemptAuthentication(request, response);
 
         assertThat(result.getClass()).isEqualTo(AnonymousAuthenticationToken.class);
+    }
+
+    @Test
+    public void throwsWithoutTokenInSubdirectoryOfAnonymousPath() throws Exception {
+
+        JWTAuthenticationTokenFilter uut = new JWTAuthenticationTokenFilter(HashSet.of("/api"));
+        when(request.getServletPath()).thenReturn("/api/foo");
+
+        assertThatThrownBy(() -> uut.attemptAuthentication(request, response))
+                .isInstanceOf(InvalidTokenException.class)
+                .hasMessage("no token");
+
     }
 
     @Test
