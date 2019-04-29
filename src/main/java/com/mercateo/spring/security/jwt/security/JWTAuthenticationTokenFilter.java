@@ -21,16 +21,15 @@ import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.security.authentication.AnonymousAuthenticationProvider;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.util.AntPathMatcher;
 
@@ -41,7 +40,7 @@ public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessi
 
     private final static String TOKEN_HEADER = "authorization";
 
-    private final AntPathMatcher antPathMatcher =  new AntPathMatcher();
+    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     @NonNull
     private Set<String> unauthenticatedPaths;
@@ -52,37 +51,64 @@ public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessi
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
         String tokenHeader = request.getHeader(TOKEN_HEADER);
 
         if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
-            final String pathInfo = String.valueOf(request.getPathInfo()).replace("null","");
-            final String servletPath = String.valueOf(request.getServletPath()).replace("null","");
-
-            // request URL depends on the default servlet or mounted location
-            final String pathToCheck = servletPath + pathInfo;
-
-            log.warn("no JWT token found {} ({})", pathToCheck, tokenHeader);
-
-            if (unauthenticatedPaths.toJavaStream().filter(path -> antPathMatcher.match(path, pathToCheck)).count() == 0) {
-                throw new InvalidTokenException("no token");
-            } else {
-                AnonymousAuthenticationProvider anonymProvider = new AnonymousAuthenticationProvider("anonymousUser");
-                return anonymProvider.authenticate(new AnonymousAuthenticationToken("anonymousUser",
-                     "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
+            try {
+                handleNoBearerToken(request, response, chain, tokenHeader);
+            } catch (InvalidTokenException e) {
+                unsuccessfulAuthentication(request, response, e);
             }
         } else {
-            String authToken = tokenHeader.split("\\s+")[1];
+            super.doFilter(request, response, chain);
+        }
+    }
 
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request,
+            HttpServletResponse response) {
+        String tokenHeader = request.getHeader(TOKEN_HEADER);
+
+        if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
+            return null;
+        } else {
+            String authToken = tokenHeader.split("\\s+")[1];
             return getAuthenticationManager().authenticate(new JWTAuthenticationToken(authToken));
         }
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+    protected void successfulAuthentication(HttpServletRequest request,
+            HttpServletResponse response, FilterChain chain,
             Authentication authResult) throws IOException, ServletException {
         super.successfulAuthentication(request, response, chain, authResult);
 
         chain.doFilter(request, response);
+    }
+
+    private void handleNoBearerToken(HttpServletRequest request, HttpServletResponse response,
+            FilterChain chain, String token) throws IOException, ServletException {
+        final String pathInfo = String.valueOf(request.getPathInfo()).replace("null", "");
+        final String servletPath = String.valueOf(request.getServletPath()).replace("null", "");
+
+        // request URL depends on the default servlet or mounted location
+        final String pathToCheck = servletPath + pathInfo;
+        log.warn("no JWT token found {} ({})", pathToCheck, token);
+
+        if (isUnauthenticatedPath(pathToCheck)) {
+            chain.doFilter(request, response);
+        } else {
+            throw new InvalidTokenException("no token");
+        }
+    }
+
+    private boolean isUnauthenticatedPath(String pathToCheck) {
+        return !unauthenticatedPaths.toJavaStream().noneMatch(path -> antPathMatcher.match(path,
+                pathToCheck));
+
     }
 }
