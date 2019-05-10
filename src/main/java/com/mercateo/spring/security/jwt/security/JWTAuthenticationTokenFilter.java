@@ -18,6 +18,8 @@ package com.mercateo.spring.security.jwt.security;
 import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -26,14 +28,12 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.util.AntPathMatcher;
-
-import io.vavr.collection.HashSet;
-import io.vavr.collection.Set;
 
 @Slf4j
 public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessingFilter {
@@ -42,7 +42,7 @@ public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessi
 
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
-    private Set<String> unauthenticatedPaths = HashSet.empty();
+    private Set<String> unauthenticatedPaths = new HashSet<>();
 
     public JWTAuthenticationTokenFilter() {
         super("/**");
@@ -105,11 +105,11 @@ public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessi
     }
 
     private boolean isUnauthenticatedPath(String pathToCheck) {
-        return !unauthenticatedPaths.toJavaStream().noneMatch(path -> antPathMatcher.match(path,
+        return !unauthenticatedPaths.stream().noneMatch(path -> antPathMatcher.match(path,
                 pathToCheck));
     }
 
-    public void addUnauthenticatedPaths(Set<String> unauthenticatedPaths) {
-        this.unauthenticatedPaths = this.unauthenticatedPaths.addAll(unauthenticatedPaths);
+    public void addUnauthenticatedPaths(@NonNull Set<String> unauthenticatedPaths) {
+        this.unauthenticatedPaths.addAll(unauthenticatedPaths);
     }
 }

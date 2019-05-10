@@ -79,7 +79,7 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
         authenticationTokenFilter.setAuthenticationSuccessHandler(
                 new JWTAuthenticationSuccessHandler());
         if (!jwtSecurityConfig.anonymousPaths().isEmpty()) {
-            authenticationTokenFilter.addUnauthenticatedPaths(jwtSecurityConfig.anonymousPaths());
+            authenticationTokenFilter.addUnauthenticatedPaths(jwtSecurityConfig.anonymousPaths().toJavaSet());
         }
         jwtSecurityConfig.authenticationFailureHandler().forEach(
                 authenticationTokenFilter::setAuthenticationFailureHandler);
