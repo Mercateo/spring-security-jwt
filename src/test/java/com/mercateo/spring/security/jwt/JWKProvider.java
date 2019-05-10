@@ -13,13 +13,12 @@ import com.auth0.jwt.algorithms.Algorithm;
 
 public class JWKProvider {
 
-    private final RSAPrivateKey privateKey;
-
     private final RSAPublicKey publicKey;
 
     private final Algorithm algorithm;
 
     public JWKProvider() {
+        RSAPrivateKey privateKey;
         try {
             privateKey = (RSAPrivateKey) PemUtils.readPrivateKey(getClass().getResourceAsStream("rsa-private.pem"),
                     "RSA");

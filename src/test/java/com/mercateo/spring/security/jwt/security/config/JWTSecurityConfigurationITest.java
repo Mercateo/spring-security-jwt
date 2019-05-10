@@ -30,16 +30,13 @@ import org.springframework.web.context.WebApplicationContext;
 @WebAppConfiguration
 @EnableWebSecurity
 public class JWTSecurityConfigurationITest {
-    @Autowired
-    TestController testController;
-
     private MockMvc mockMvc;
 
     @Autowired
     private WebApplicationContext webApplicationContext;
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
     }
 

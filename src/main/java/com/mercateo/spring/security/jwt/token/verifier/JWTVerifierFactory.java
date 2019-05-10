@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2017 Mercateo AG (http://www.mercateo.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,9 +36,9 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Slf4j
 public class JWTVerifierFactory {
-    final JWTKeyset jwks;
+    private final JWTKeyset jwtKeyset;
 
-    final JWTConfig config;
+    private final JWTConfig jwtConfig;
 
     private static IllegalStateException map(Throwable cause) {
         return new IllegalStateException(cause);
@@ -48,7 +48,7 @@ public class JWTVerifierFactory {
         final RSAKeyProvider rsaKeyProvider = new RSAKeyProvider() {
             @Override
             public RSAPublicKey getPublicKeyById(String keyId) {
-                return jwks
+                return jwtKeyset
                     .getKeysetForId(keyId)
                     .mapTry(Jwk::getPublicKey)
                     .map(Key::getEncoded)
@@ -72,10 +72,10 @@ public class JWTVerifierFactory {
 
         val verification = JWTVerifier.init(algorithm);
 
-        final int tokenLeeway = config.getTokenLeeway();
+        final int tokenLeeway = jwtConfig.getTokenLeeway();
         verification.acceptLeeway(tokenLeeway);
 
-        val tokenAudiences = config.getTokenAudiences();
+        val tokenAudiences = jwtConfig.getTokenAudiences();
         if (tokenAudiences.nonEmpty()) {
             verification.withAudience(tokenAudiences.toJavaArray(String[]::new));
         }
