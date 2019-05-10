@@ -3,6 +3,7 @@ package com.mercateo.spring.security.jwt.security;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.val;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -23,8 +25,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JWTAuthenticationTokenFilterTest {
@@ -41,9 +43,12 @@ public class JWTAuthenticationTokenFilterTest {
     @Mock
     private AuthenticationManager authenticationManager;
 
-    private JWTAuthenticationTokenFilter uut = new JWTAuthenticationTokenFilter();
+    private JWTAuthenticationTokenFilter uut;
 
-    SecurityContext context = new SecurityContextImpl();
+    @Before
+    public void init() {
+        uut = new JWTAuthenticationTokenFilter();
+    }
 
     @Test
     public void throwsWithoutToken() throws Exception {
@@ -108,6 +113,21 @@ public class JWTAuthenticationTokenFilterTest {
 
         verify(chain).doFilter(request, response);
 
+    }
+
+    @Test
+    public void callsFilterChainWithoutTokenWithoutAnonymousPath() throws Exception {
+
+        final AuthenticationFailureHandler mockAuthenticationFailureHandler = mock(AuthenticationFailureHandler.class);
+        doNothing().when(mockAuthenticationFailureHandler).onAuthenticationFailure(any(HttpServletRequest.class),
+                any(HttpServletResponse.class), any(AuthenticationException.class));
+        uut.setAuthenticationFailureHandler(mockAuthenticationFailureHandler);
+
+        uut.doFilter(request, response, chain);
+
+        verify(chain, never()).doFilter(request, response);
+        verify(mockAuthenticationFailureHandler).onAuthenticationFailure(any(HttpServletRequest.class),
+                        any(HttpServletResponse.class), any(AuthenticationException.class));
     }
 
     @Test

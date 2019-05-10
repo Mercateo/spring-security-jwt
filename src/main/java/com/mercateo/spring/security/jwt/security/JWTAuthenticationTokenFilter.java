@@ -39,6 +39,7 @@ import org.springframework.util.AntPathMatcher;
 public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessingFilter {
 
     private final static String TOKEN_HEADER = "authorization";
+    private static final String TOKEN_PREFIX_BEARER = "Bearer ";
 
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
@@ -55,7 +56,7 @@ public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessi
         HttpServletResponse response = (HttpServletResponse) res;
         String tokenHeader = request.getHeader(TOKEN_HEADER);
 
-        if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
+        if (isInvalidTokenPrefixForBearer(tokenHeader)) {
             try {
                 handleNoBearerToken(request, response, chain, tokenHeader);
             } catch (InvalidTokenException e) {
@@ -71,12 +72,11 @@ public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessi
             HttpServletResponse response) {
         String tokenHeader = request.getHeader(TOKEN_HEADER);
 
-        if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
+        if (isInvalidTokenPrefixForBearer(tokenHeader)) {
             return null;
-        } else {
-            String authToken = tokenHeader.split("\\s+")[1];
-            return getAuthenticationManager().authenticate(new JWTAuthenticationToken(authToken));
         }
+        String authToken = tokenHeader.split("\\s+")[1];
+        return getAuthenticationManager().authenticate(new JWTAuthenticationToken(authToken));
     }
 
     @Override
@@ -86,6 +86,10 @@ public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessi
         super.successfulAuthentication(request, response, chain, authResult);
 
         chain.doFilter(request, response);
+    }
+
+    private boolean isInvalidTokenPrefixForBearer(final String tokenHeader) {
+        return tokenHeader == null || !tokenHeader.startsWith(TOKEN_PREFIX_BEARER);
     }
 
     private void handleNoBearerToken(HttpServletRequest request, HttpServletResponse response,
@@ -100,13 +104,15 @@ public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessi
         if (isUnauthenticatedPath(pathToCheck)) {
             chain.doFilter(request, response);
         } else {
-            throw new InvalidTokenException("no token");
+            final String message = "No ".concat(TOKEN_PREFIX_BEARER)
+                    .concat("token and no unauthenticated path [").concat(pathToCheck)
+                    .concat("].");
+            throw new InvalidTokenException(message);
         }
     }
 
-    private boolean isUnauthenticatedPath(String pathToCheck) {
-        return !unauthenticatedPaths.stream().noneMatch(path -> antPathMatcher.match(path,
-                pathToCheck));
+    private boolean isUnauthenticatedPath(final String pathToCheck) {
+        return unauthenticatedPaths.stream().anyMatch(path -> antPathMatcher.match(path, pathToCheck));
     }
 
     public void addUnauthenticatedPaths(@NonNull Set<String> unauthenticatedPaths) {

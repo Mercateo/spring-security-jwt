@@ -77,12 +77,12 @@
         <spring.version>5.1.6.RELEASE</spring.version>
         <jackson.version>2.9.8</jackson.version>
         <immutables.version>2.7.5</immutables.version>
-        <lombok.version>1.18.6</lombok.version>
+        <lombok.version>1.18.8</lombok.version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
         <vavr-encodings.version>0.6.0</vavr-encodings.version>
         <default-immutables.version>1.2.5</default-immutables.version>
         <java-jwt.version>3.8.0</java-jwt.version>
-        <jwks-rsa.version>0.8.0</jwks-rsa.version>
+        <jwks-rsa.version>0.8.1</jwks-rsa.version>
         <vavr.version>0.10.0</vavr.version>
         <slf4j-api.version>1.7.25</slf4j-api.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
@@ -94,7 +94,7 @@
         <logback-classic.version>1.2.3</logback-classic.version>
         <!-- plugin -->
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
-        <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.1.0</maven-javadoc-plugin.version>
         <maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
