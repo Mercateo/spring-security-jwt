@@ -41,7 +41,7 @@ public class JWTAuthenticationTokenFilterTest {
     @Mock
     private AuthenticationManager authenticationManager;
 
-    private JWTAuthenticationTokenFilter uut = new JWTAuthenticationTokenFilter(HashSet.empty());
+    private JWTAuthenticationTokenFilter uut = new JWTAuthenticationTokenFilter();
 
     SecurityContext context = new SecurityContextImpl();
 
@@ -75,7 +75,7 @@ public class JWTAuthenticationTokenFilterTest {
     @Test
     public void dontAttemptAuthenticationWithoutTokenWithAnonymousPath() throws Exception {
 
-        JWTAuthenticationTokenFilter uut = new JWTAuthenticationTokenFilter(HashSet.of("/api"));
+        uut.addUnauthenticatedPaths(HashSet.of("/api"));
         JWTAuthenticationTokenFilter spy = Mockito.spy(uut);
         when(request.getServletPath()).thenReturn("/api");
 
@@ -88,7 +88,7 @@ public class JWTAuthenticationTokenFilterTest {
     @Test
     public void dontAttemptAuthenticationWithoutTokenWithAnonymousPathWildcard() throws Exception {
 
-        JWTAuthenticationTokenFilter uut = new JWTAuthenticationTokenFilter(HashSet.of("/api/*"));
+        uut.addUnauthenticatedPaths(HashSet.of("/api/*"));
         JWTAuthenticationTokenFilter spy = Mockito.spy(uut);
         when(request.getServletPath()).thenReturn("/api/foo");
 
@@ -101,7 +101,7 @@ public class JWTAuthenticationTokenFilterTest {
     @Test
     public void callsFilterChainWithoutTokenWithAnonymousPath() throws Exception {
 
-        JWTAuthenticationTokenFilter uut = new JWTAuthenticationTokenFilter(HashSet.of("/api"));
+        uut.addUnauthenticatedPaths(HashSet.of("/api"));
         when(request.getServletPath()).thenReturn("/api");
 
         uut.doFilter(request, response, chain);
@@ -113,7 +113,7 @@ public class JWTAuthenticationTokenFilterTest {
     @Test
     public void throwsWithoutTokenInSubdirectoryOfAnonymousPath() throws Exception {
 
-        JWTAuthenticationTokenFilter uut = new JWTAuthenticationTokenFilter(HashSet.of("/api"));
+        uut.addUnauthenticatedPaths(HashSet.of("/api"));
         JWTAuthenticationTokenFilter spy = Mockito.spy(uut);
         when(request.getServletPath()).thenReturn("/api/foo");
 

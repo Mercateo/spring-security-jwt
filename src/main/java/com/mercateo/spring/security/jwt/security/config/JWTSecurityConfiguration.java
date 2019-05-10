@@ -72,12 +72,16 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     public JWTAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
+        JWTSecurityConfig jwtSecurityConfig = jwtSecurityConfig();
 
-        JWTAuthenticationTokenFilter authenticationTokenFilter = new JWTAuthenticationTokenFilter(config.get().anonymousPaths());
+        JWTAuthenticationTokenFilter authenticationTokenFilter = new JWTAuthenticationTokenFilter();
         authenticationTokenFilter.setAuthenticationManager(authenticationManager());
-        authenticationTokenFilter.setAuthenticationSuccessHandler(new JWTAuthenticationSuccessHandler());
-
-        jwtSecurityConfig().authenticationFailureHandler().forEach(
+        authenticationTokenFilter.setAuthenticationSuccessHandler(
+                new JWTAuthenticationSuccessHandler());
+        if (!jwtSecurityConfig.anonymousPaths().isEmpty()) {
+            authenticationTokenFilter.addUnauthenticatedPaths(jwtSecurityConfig.anonymousPaths());
+        }
+        jwtSecurityConfig.authenticationFailureHandler().forEach(
                 authenticationTokenFilter::setAuthenticationFailureHandler);
 
         return authenticationTokenFilter;
@@ -97,42 +101,45 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
         log.info("with unauthenticated paths: [{}]", String.join(", ", unauthenticatedPaths));
 
         httpSecurity
-            // disable csrf
-            .csrf()
-            .disable()
+                // disable csrf
+                .csrf()
+                .disable()
 
-            // allow
-            .authorizeRequests()
-            .antMatchers(unauthenticatedPaths)
-            .permitAll()
-            .and()
-            // enable authorization
-            .authorizeRequests()
-            .anyRequest()
-            .authenticated()
-            .and()
-            .exceptionHandling()
-            .authenticationEntryPoint(jwtAuthenticationEntryPoint())
-            .and()
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                // allow
+                .authorizeRequests()
+                .antMatchers(unauthenticatedPaths)
+                .permitAll()
+                .and()
+                // enable authorization
+                .authorizeRequests()
+                .anyRequest()
+                .authenticated()
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint())
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
-            // Custom JWT based security filter
-            .and()
-            .addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class)
+                // Custom JWT based security filter
+                .and()
+                .addFilterBefore(authenticationTokenFilterBean(),
+                        UsernamePasswordAuthenticationFilter.class)
 
-            // disable page caching
-            .headers()
-            .cacheControl();
+                // disable page caching
+                .headers()
+                .cacheControl();
     }
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        config.ifPresent(config -> config.anonymousMethods().forEach(method -> web.ignoring().antMatchers(method)));
+        config.ifPresent(config -> config.anonymousMethods().forEach(method -> web.ignoring()
+                .antMatchers(method)));
     }
 
     private String[] getUnauthenticatedPaths() {
-        return config.map(JWTSecurityConfig::anonymousPaths).map(list -> list.toJavaArray(String[]::new)).orElse(
-                new String[0]);
+        return config.map(JWTSecurityConfig::anonymousPaths).map(list -> list.toJavaArray(
+                String[]::new)).orElse(
+                        new String[0]);
     }
 }
