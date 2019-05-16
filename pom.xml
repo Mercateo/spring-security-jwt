@@ -65,7 +65,7 @@
     <scm>
         <connection>scm:git:git@github.com:Mercateo/spring-security-jwt.git</connection>
         <developerConnection>scm:git:git@github.com:Mercateo/spring-security-jwt.git</developerConnection>
-        <url>https://github.com/Mercateo/spring-security-jwt.git</url>
+        <url>https://github.com/Mercateo/spring-security-jwt</url>
         <tag>HEAD</tag>
     </scm>
 
