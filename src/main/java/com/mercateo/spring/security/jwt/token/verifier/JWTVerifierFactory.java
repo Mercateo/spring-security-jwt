@@ -30,8 +30,8 @@ import com.mercateo.spring.security.jwt.token.config.JWTConfig;
 import com.mercateo.spring.security.jwt.token.keyset.JWTKeyset;
 
 import lombok.AllArgsConstructor;
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 @AllArgsConstructor
 @Slf4j

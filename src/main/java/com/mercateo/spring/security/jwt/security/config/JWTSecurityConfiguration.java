@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2017 Mercateo AG (http://www.mercateo.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,17 +15,8 @@
  */
 package com.mercateo.spring.security.jwt.security.config;
 
-import com.mercateo.spring.security.jwt.security.JWTAuthenticationEntryPoint;
-import com.mercateo.spring.security.jwt.security.JWTAuthenticationProvider;
-import com.mercateo.spring.security.jwt.security.JWTAuthenticationSuccessHandler;
-import com.mercateo.spring.security.jwt.security.JWTAuthenticationTokenFilter;
-import com.mercateo.spring.security.jwt.token.extractor.ValidatingHierarchicalClaimsExtractor;
-
 import java.util.Collections;
 import java.util.Optional;
-
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,6 +29,15 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.mercateo.spring.security.jwt.security.JWTAuthenticationEntryPoint;
+import com.mercateo.spring.security.jwt.security.JWTAuthenticationProvider;
+import com.mercateo.spring.security.jwt.security.JWTAuthenticationSuccessHandler;
+import com.mercateo.spring.security.jwt.security.JWTAuthenticationTokenFilter;
+import com.mercateo.spring.security.jwt.token.extractor.ValidatingHierarchicalClaimsExtractor;
+
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableWebSecurity
@@ -66,7 +66,7 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     @Override
-    public AuthenticationManager authenticationManager() throws Exception {
+    public AuthenticationManager authenticationManager() {
         return new ProviderManager(Collections.singletonList(jwtAuthenticationProvider(
                 hierarchicalJwtClaimsExtractor())));
     }
@@ -132,14 +132,13 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
-        config.ifPresent(config -> config.anonymousMethods().forEach(method -> web.ignoring()
-                .antMatchers(method)));
+    public void configure(WebSecurity web) {
+        config.ifPresent(config -> config.anonymousMethods()
+                            .forEach(method -> web.ignoring().antMatchers(method)));
     }
 
     private String[] getUnauthenticatedPaths() {
-        return config.map(JWTSecurityConfig::anonymousPaths).map(list -> list.toJavaArray(
-                String[]::new)).orElse(
-                        new String[0]);
+        return config.map(JWTSecurityConfig::anonymousPaths)
+                .map(list -> list.toJavaArray(String[]::new)).orElse(new String[0]);
     }
 }

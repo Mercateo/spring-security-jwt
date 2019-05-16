@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2017 Mercateo AG (http://www.mercateo.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.mercateo.spring.security.jwt;
 
 import java.io.IOException;
@@ -25,41 +40,37 @@ class PemUtils {
     }
 
     private static PublicKey getPublicKey(byte[] keyBytes, String algorithm) {
-        PublicKey publicKey = null;
         try {
             KeyFactory kf = KeyFactory.getInstance(algorithm);
             EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
-            publicKey = kf.generatePublic(keySpec);
+            return kf.generatePublic(keySpec);
         } catch (NoSuchAlgorithmException e) {
             System.out.println("Could not reconstruct the public key, the given algorithm could not be found.");
         } catch (InvalidKeySpecException e) {
             System.out.println("Could not reconstruct the public key");
         }
-
-        return publicKey;
+        return null;
     }
 
     private static PrivateKey getPrivateKey(byte[] keyBytes, String algorithm) {
-        PrivateKey privateKey = null;
         try {
             KeyFactory kf = KeyFactory.getInstance(algorithm);
             EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
-            privateKey = kf.generatePrivate(keySpec);
+            return kf.generatePrivate(keySpec);
         } catch (NoSuchAlgorithmException e) {
             System.out.println("Could not reconstruct the private key, the given algorithm could not be found.");
         } catch (InvalidKeySpecException e) {
             System.out.println("Could not reconstruct the private key");
         }
-
-        return privateKey;
+        return null;
     }
 
-    public static PublicKey readPublicKey(InputStream inputStream, String algorithm) throws IOException {
+    static PublicKey readPublicKey(InputStream inputStream, String algorithm) throws IOException {
         byte[] bytes = PemUtils.parsePEM(inputStream);
         return PemUtils.getPublicKey(bytes, algorithm);
     }
 
-    public static PrivateKey readPrivateKey(InputStream inputStream, String algorithm) throws IOException {
+    static PrivateKey readPrivateKey(InputStream inputStream, String algorithm) throws IOException {
         byte[] bytes = PemUtils.parsePEM(inputStream);
         return PemUtils.getPrivateKey(bytes, algorithm);
     }

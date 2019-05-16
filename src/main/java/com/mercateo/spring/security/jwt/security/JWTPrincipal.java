@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2017 Mercateo AG (http://www.mercateo.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,19 +15,21 @@
  */
 package com.mercateo.spring.security.jwt.security;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.mercateo.spring.security.jwt.data.ClaimName;
-import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
-import io.vavr.collection.List;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.util.Objects.requireNonNull;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mercateo.spring.security.jwt.data.ClaimName;
+import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
+
+import io.vavr.collection.List;
 
 public class JWTPrincipal implements UserDetails {
 
@@ -43,7 +45,7 @@ public class JWTPrincipal implements UserDetails {
 
     public JWTPrincipal(long id, String username, String token, List<? extends GrantedAuthority> authorities,
                         Map<String, JWTClaim> claims) {
-        this.id = Long.valueOf(id);
+        this.id = id;
         this.username = username;
         this.token = token;
         this.authorities = authorities;

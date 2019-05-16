@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2017 Mercateo AG (http://www.mercateo.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +15,6 @@
  */
 package com.mercateo.spring.security.jwt.security;
 
-import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,12 +26,14 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.util.AntPathMatcher;
+
+import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
+
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessingFilter {
@@ -99,7 +99,7 @@ public class JWTAuthenticationTokenFilter extends AbstractAuthenticationProcessi
 
         // request URL depends on the default servlet or mounted location
         final String pathToCheck = servletPath + pathInfo;
-        log.warn("no JWT token found {} ({})", pathToCheck, token);
+        log.debug("No {}token found: {} ({})", TOKEN_PREFIX_BEARER, pathToCheck, token);
 
         if (isUnauthenticatedPath(pathToCheck)) {
             chain.doFilter(request, response);
