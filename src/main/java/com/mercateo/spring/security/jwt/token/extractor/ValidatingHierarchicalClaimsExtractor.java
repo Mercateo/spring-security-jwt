@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2017 Mercateo AG (http://www.mercateo.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,8 +24,8 @@ import com.mercateo.spring.security.jwt.token.verifier.TokenVerifier;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.control.Option;
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 @Slf4j
 public class ValidatingHierarchicalClaimsExtractor {

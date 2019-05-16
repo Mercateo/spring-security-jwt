@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2017 Mercateo AG (http://www.mercateo.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,24 +15,26 @@
  */
 package com.mercateo.spring.security.jwt.security;
 
-import com.auth0.jwt.JWT;
-import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
-import com.mercateo.spring.security.jwt.token.claim.JWTClaims;
-import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
-import com.mercateo.spring.security.jwt.token.exception.TokenException;
-import com.mercateo.spring.security.jwt.token.extractor.ValidatingHierarchicalClaimsExtractor;
-import io.vavr.collection.List;
-import io.vavr.control.Option;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
+import java.util.Objects;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Objects;
+import com.auth0.jwt.JWT;
+import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
+import com.mercateo.spring.security.jwt.token.claim.JWTClaims;
+import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
+import com.mercateo.spring.security.jwt.token.exception.TokenException;
+import com.mercateo.spring.security.jwt.token.extractor.ValidatingHierarchicalClaimsExtractor;
+
+import io.vavr.collection.List;
+import io.vavr.control.Option;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 @Slf4j
 @AllArgsConstructor

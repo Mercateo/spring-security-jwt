@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2017 Mercateo AG (http://www.mercateo.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,11 +15,12 @@
  */
 package com.mercateo.spring.security.jwt.token.extractor;
 
-import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
-import io.vavr.collection.List;
-
 import java.util.Map;
 import java.util.Optional;
+
+import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
+
+import io.vavr.collection.List;
 
 class InnerClaimsWrapper {
 
@@ -29,17 +30,18 @@ class InnerClaimsWrapper {
 
     private JWTClaim wrapGroupedClaims(List<JWTClaim> claims) {
         final List<JWTClaim> reverse = claims.reverse();
-
-        Optional<JWTClaim> innerClaim = Optional.empty();
-
+        JWTClaim innerClaim = null;
         for (JWTClaim jwtClaim : reverse) {
-            innerClaim = Optional.of(JWTClaim //
-                    .builder()
-                    .from(jwtClaim)
-                    .innerClaim(innerClaim)
-                    .build());
+            innerClaim = buildJwtClaim(jwtClaim, innerClaim);
         }
+        return innerClaim;
+    }
 
-        return innerClaim.get();
+    private JWTClaim buildJwtClaim(final JWTClaim jwtClaim, final JWTClaim innerClaim) {
+        return JWTClaim //
+                .builder()
+                .from(jwtClaim)
+                .innerClaim(Optional.ofNullable(innerClaim))
+                .build();
     }
 }

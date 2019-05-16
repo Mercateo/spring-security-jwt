@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2017 Mercateo AG (http://www.mercateo.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +15,12 @@
  */
 package com.mercateo.spring.security.jwt.token.claim;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.mercateo.immutables.ValueStyle;
-import org.immutables.value.Value;
-
 import java.util.Map;
 
+import org.immutables.value.Value;
+
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.mercateo.immutables.ValueStyle;
 
 @Value.Immutable
 @ValueStyle
