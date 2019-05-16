@@ -74,8 +74,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- -->
         <spring-security.version>5.1.5.RELEASE</spring-security.version>
-        <spring.version>5.1.6.RELEASE</spring.version>
-        <jackson.version>2.9.8</jackson.version>
+        <spring.version>5.1.7.RELEASE</spring.version>
+        <jackson.version>2.9.9</jackson.version>
         <immutables.version>2.7.5</immutables.version>
         <lombok.version>1.18.8</lombok.version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
@@ -83,6 +83,7 @@
         <default-immutables.version>1.2.5</default-immutables.version>
         <java-jwt.version>3.8.0</java-jwt.version>
         <jwks-rsa.version>0.8.1</jwks-rsa.version>
+        <bcprov-jdk15on.version>1.61</bcprov-jdk15on.version>
         <vavr.version>0.10.0</vavr.version>
         <slf4j-api.version>1.7.25</slf4j-api.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
@@ -90,15 +91,14 @@
         <junit.version>4.12</junit.version>
         <assertj-core.version>3.12.2</assertj-core.version>
         <mockito-core.version>2.27.0</mockito-core.version>
-        <bcprov-jdk15on.version>1.61</bcprov-jdk15on.version>
         <logback-classic.version>1.2.3</logback-classic.version>
         <!-- plugin -->
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.1.0</maven-javadoc-plugin.version>
-        <maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
-        <jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
+        <maven-jar-plugin.version>3.1.2</maven-jar-plugin.version>
+        <jacoco-maven-plugin.version>0.8.4</jacoco-maven-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>2.22.1</maven-failsafe-plugin.version>
