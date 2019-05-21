@@ -86,3 +86,14 @@ public class MyConfiguration {
 ## Roles / scopes integration
 
 The content of the scope claim is parsed into the list of granted authorities.
+
+## Usage
+Add the dependency to your maven
+```xml
+    <dependency>
+      <groupId>com.mercateo.spring</groupId>
+      <artifactId>spring-security-jwt</artifactId>
+      <version>2.0.1</version>
+    </dependency>
+```
+Integrates in [Spring Security](https://spring.io/projects/spring-security).
