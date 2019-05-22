@@ -97,3 +97,14 @@ Add the dependency to your maven
     </dependency>
 ```
 Integrates in [Spring Security](https://spring.io/projects/spring-security).
+
+### Changelog:
+
+2.0.1:
+* updated dependencies
+* updated parent pom [oss-parent-pom](https://github.com/Mercateo/oss-parent-pom) to version 1.0.9.
+* the public dependenvy on [io.vavr](https://www.vavr.io/) is removed
+
+### What's next?
+* remove the dependency to [io.vavr](https://www.vavr.io/)
+* add module-info for better compatibility with java 9+
