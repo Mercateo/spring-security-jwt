@@ -68,9 +68,7 @@ public class JWTVerifierFactory {
             }
         };
 
-        val algorithm = Algorithm.RSA256(rsaKeyProvider);
-
-        val verification = JWTVerifier.init(algorithm);
+        val verification = JWTVerifier.init(rsaKeyProvider);
 
         final int tokenLeeway = jwtConfig.getTokenLeeway();
         verification.acceptLeeway(tokenLeeway);
