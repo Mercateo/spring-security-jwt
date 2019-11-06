@@ -36,6 +36,7 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.Clock;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.RSAKeyProvider;
+import com.google.common.annotations.VisibleForTesting;
 
 import lombok.val;
 
@@ -90,8 +91,8 @@ public final class JWTVerifier {
         verifyClaims(jwt, claims);
         return jwt;
     }
-
-	private Algorithm getAlgorithm(DecodedJWT jwt) throws AlgorithmMismatchException {
+    @VisibleForTesting
+	Algorithm getAlgorithm(DecodedJWT jwt) throws AlgorithmMismatchException {
 		switch (jwt.getAlgorithm().toLowerCase()) {
 		case "rs256":
 			return Algorithm.RSA256(rsaKeyProvider);
