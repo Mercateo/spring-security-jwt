@@ -2,6 +2,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>com.mercateo.oss</groupId>
+        <artifactId>oss-parent-pom</artifactId>
+        <version>1.0.9</version>
+    </parent>
+
     <artifactId>spring-security-jwt</artifactId>
     <groupId>com.mercateo.spring</groupId>
     <version>2.0.2-SNAPSHOT</version>
@@ -88,6 +94,7 @@
         <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>2.22.1</maven-failsafe-plugin.version>
         <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
+        <dependency-check-maven.version>5.2.2</dependency-check-maven.version>
     </properties>
 
     <build>
