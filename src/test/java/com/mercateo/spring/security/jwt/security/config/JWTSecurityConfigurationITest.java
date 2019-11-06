@@ -21,6 +21,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,6 +40,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = { JWTSecurityConfigurationITest.TestPathConfiguration.class,
@@ -90,6 +95,24 @@ public class JWTSecurityConfigurationITest {
                 .addAnonymousMethods(HttpMethod.OPTIONS)
                 .build();
         }
+    	@Bean
+    	public CorsFilter corsFilter() {
+    		final CorsConfiguration config = new CorsConfiguration();
+
+    		config.addAllowedOrigin("*");
+    		config.addAllowedHeader("*");
+    		config.addAllowedMethod("GET");
+    		config.addAllowedMethod("PUT");
+    		config.addAllowedMethod("POST");
+
+    		return new CorsFilter(new CorsConfigurationSource() {
+
+    			@Override
+    			public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+    				return config;
+    			}
+    		});
+    	}
     }
 
     @Controller
