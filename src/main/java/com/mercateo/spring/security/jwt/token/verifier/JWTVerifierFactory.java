@@ -53,7 +53,7 @@ public class JWTVerifierFactory {
                     .mapTry(Jwk::getPublicKey)
                     .map(Key::getEncoded)
                     .mapTry(JWTVerifierFactory::createKey)
-                    .onFailure(e -> log.warn("Error getting public key for id " + keyId, e))
+                    .onFailure(e -> log.error("Error getting public key for id " + keyId, e))
                     .getOrElseThrow(JWTVerifierFactory::map);
             }
 
@@ -68,9 +68,7 @@ public class JWTVerifierFactory {
             }
         };
 
-        val algorithm = Algorithm.RSA256(rsaKeyProvider);
-
-        val verification = JWTVerifier.init(algorithm);
+        val verification = JWTVerifier.init(rsaKeyProvider);
 
         final int tokenLeeway = jwtConfig.getTokenLeeway();
         verification.acceptLeeway(tokenLeeway);

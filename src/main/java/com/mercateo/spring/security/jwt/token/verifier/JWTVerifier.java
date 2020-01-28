@@ -35,6 +35,8 @@ import com.auth0.jwt.impl.PublicClaims;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.Clock;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.interfaces.RSAKeyProvider;
+import com.google.common.annotations.VisibleForTesting;
 
 import lombok.val;
 
@@ -45,27 +47,25 @@ import lombok.val;
 @SuppressWarnings("WeakerAccess")
 public final class JWTVerifier {
     private final Map<String, Object> claims;
-    private final Algorithm algorithm;
+    private final RSAKeyProvider rsaKeyProvider;
     private final Clock clock;
 
-    JWTVerifier(Algorithm algorithm, Map<String, Object> claims, Clock clock) {
-        this.algorithm = algorithm;
-        this.claims = Collections.unmodifiableMap(claims);
-        this.clock = clock;
-    }
+	JWTVerifier(RSAKeyProvider rsaKeyProvider, Map<String, Object> claims, Clock clock) {
+		this.rsaKeyProvider = rsaKeyProvider;
+		this.claims = Collections.unmodifiableMap(claims);
+		this.clock = clock;
+	}
 
-    /**
-     * Initialize a JWTVerifier instance using the given Algorithm.
-     *
-     * @param algorithm
-     *            the Algorithm to use on the JWT verification.
-     * @return a JWTVerifier.Verification instance to configure.
-     * @throws IllegalArgumentException
-     *             if the provided algorithm is null.
-     */
-    public static BaseVerification init(Algorithm algorithm) throws IllegalArgumentException {
-        return new BaseVerification(algorithm);
-    }
+	/**
+	 * Initialize a JWTVerifier instance using the given Algorithm.
+	 *
+	 * @param RSA key provider for the RSA algorithm.
+	 * @return a JWTVerifier.Verification instance to configure.
+	 * @throws IllegalArgumentException if the provided algorithm is null.
+	 */
+	public static BaseVerification init(RSAKeyProvider rsaKeyProvider) throws IllegalArgumentException {
+		return new BaseVerification(rsaKeyProvider);
+	}
 
     /**
      * Perform the verification against the given Token, using any previous
@@ -86,18 +86,25 @@ public final class JWTVerifier {
      */
     public DecodedJWT verify(String token) throws JWTVerificationException {
         DecodedJWT jwt = JWT.decode(token);
-        verifyAlgorithm(jwt, algorithm);
+        Algorithm algorithm = getAlgorithm(jwt);
         algorithm.verify(jwt);
         verifyClaims(jwt, claims);
         return jwt;
     }
-
-    private void verifyAlgorithm(DecodedJWT jwt, Algorithm expectedAlgorithm) throws AlgorithmMismatchException {
-        if (!expectedAlgorithm.getName().equals(jwt.getAlgorithm())) {
-            throw new AlgorithmMismatchException(
-                    "The provided Algorithm doesn't match the one defined in the JWT's Header.");
-        }
-    }
+    @VisibleForTesting
+	Algorithm getAlgorithm(DecodedJWT jwt) throws AlgorithmMismatchException {
+		switch (jwt.getAlgorithm().toLowerCase()) {
+		case "rs256":
+			return Algorithm.RSA256(rsaKeyProvider);
+		case "rs384":
+			return Algorithm.RSA384(rsaKeyProvider);
+		case "rs512":
+			return Algorithm.RSA512(rsaKeyProvider);
+		default:
+			throw new AlgorithmMismatchException(
+					"The provided Algorithm has to be RSA.");
+		}
+	}
 
     private void verifyClaims(DecodedJWT jwt, Map<String, Object> claims) throws TokenExpiredException,
             InvalidClaimException {
@@ -188,25 +195,25 @@ public final class JWTVerifier {
         }
     }
 
-    /**
-     * The Verification class holds the Claims required by a JWT to be valid.
-     */
-    public static class BaseVerification {
-        private final Algorithm algorithm;
+	/**
+	 * The Verification class holds the Claims required by a JWT to be valid.
+	 */
+	public static class BaseVerification {
+		private final RSAKeyProvider rsaKeyProvider;
 
         private final Map<String, Object> claims;
 
         private long defaultLeeway;
 
-        BaseVerification(Algorithm algorithm) throws IllegalArgumentException {
-            if (algorithm == null) {
-                throw new IllegalArgumentException("The Algorithm cannot be null.");
-            }
+		BaseVerification(RSAKeyProvider rsaKeyProvider) throws IllegalArgumentException {
+			if (rsaKeyProvider == null) {
+				throw new IllegalArgumentException("The rsaKeyprovider cannot be null.");
+			}
 
-            this.algorithm = algorithm;
-            this.claims = new HashMap<>();
-            this.defaultLeeway = 0;
-        }
+			this.rsaKeyProvider = rsaKeyProvider;
+			this.claims = new HashMap<>();
+			this.defaultLeeway = 0;
+		}
 
         /**
          * Require a specific Audience ("aud") claim.
@@ -276,7 +283,7 @@ public final class JWTVerifier {
          */
         public JWTVerifier build(Clock clock) {
             addLeewayToDateClaims();
-            return new JWTVerifier(algorithm, claims, clock);
+            return new JWTVerifier(rsaKeyProvider, claims, clock);
         }
 
         private void assertPositive(long leeway) {

@@ -105,6 +105,7 @@ public class JWTSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .csrf()
                 .disable()
 
+                .cors().and()
                 // allow
                 .authorizeRequests()
                 .antMatchers(unauthenticatedPaths)

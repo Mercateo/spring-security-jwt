@@ -17,6 +17,8 @@ package com.mercateo.spring.security.jwt.token.verifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
@@ -33,6 +35,7 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mercateo.spring.security.jwt.JWKProvider;
 import com.mercateo.spring.security.jwt.token.config.JWTConfig;
 import com.mercateo.spring.security.jwt.token.config.JWTConfigData;
@@ -196,4 +199,20 @@ public class JWTVerifierTest {
         return jwtBuilder.sign(algorithm);
     }
 
+    
+    @Test
+    public void testAlgorithms() {
+    	DecodedJWT jwt=mock(DecodedJWT.class);
+    	when(jwt.getAlgorithm()).thenReturn("RS256");
+		Algorithm algo1 = uut.getAlgorithm(jwt);
+		assertEquals("RS256", algo1.getName());
+		
+		when(jwt.getAlgorithm()).thenReturn("RS384");
+		Algorithm algo2 = uut.getAlgorithm(jwt);
+		assertEquals("RS384", algo2.getName());
+		
+		when(jwt.getAlgorithm()).thenReturn("RS512");
+		Algorithm algo3 = uut.getAlgorithm(jwt);
+		assertEquals("RS512", algo3.getName());
+    }
 }
