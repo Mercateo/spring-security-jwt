@@ -3,4 +3,10 @@
     <suppress>
         <cpe>cpe:/a:pivotal_software:spring_security:5.1.5</cpe>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+      This threat can be ignored for this library as it does not direclty use "Content-Disposition" header.
+      ]]></notes>
+        <cve>CVE-2020-5398</cve>
+    </suppress>
 </suppressions>
