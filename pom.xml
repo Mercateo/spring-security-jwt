@@ -242,22 +242,9 @@
                                 </relocation>
                             </relocations>
                             <artifactSet>
-                                <excludes>
-                                    <exclude>org.slf4j:slf4j-api:*</exclude>
-                                    <exclude>com.fasterxml.jackson.*</exclude>
-                                    <exclude>com.google.guava:*</exclude>
-                                    <exclude>javax.annotation:*</exclude>
-                                    <exclude>com.google.code.findbugs:*</exclude>
-                                    <exclude>commons-io:commons-io:*</exclude>
-                                    <exclude>org.springframework:*</exclude>
-                                    <exclude>org.springframework.security:*</exclude>
-                                    <exclude>org.checkerframework:*</exclude>
-                                    <exclude>commons-codec:commons-codec:*</exclude>
-                                    <exclude>com.google.j2objc:*</exclude>
-                                    <exclude>com.google.errorprone:*</exclude>
-                                    <exclude>org.codehaus.mojo:*</exclude>
-                                    <exclude>com.auth0:*</exclude>
-                                </excludes>
+                                <includes>
+                                	<include>io.vavr:*</include>
+                                </includes>
                             </artifactSet>
                         </configuration>
                     </execution>
