@@ -94,12 +94,17 @@ Add the dependency to your maven
     <dependency>
       <groupId>com.mercateo.spring</groupId>
       <artifactId>spring-security-jwt</artifactId>
-      <version>2.0.1</version>
+      <version>2.1.0</version>
     </dependency>
 ```
 Integrates in [Spring Security](https://spring.io/projects/spring-security).
 
 ## Changelog:
+
+
+2.1.0:
+* refactored packaging
+* token handling improvenets
 
 2.0.1:
 * breaking change to the previous versions 1.x.y
