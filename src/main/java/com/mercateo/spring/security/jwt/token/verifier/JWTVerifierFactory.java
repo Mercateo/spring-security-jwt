@@ -15,60 +15,25 @@
  */
 package com.mercateo.spring.security.jwt.token.verifier;
 
-import java.security.Key;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-
-import com.auth0.jwk.Jwk;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.RSAKeyProvider;
 import com.mercateo.spring.security.jwt.token.config.JWTConfig;
 import com.mercateo.spring.security.jwt.token.keyset.JWTKeyset;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
-@AllArgsConstructor
 @Slf4j
 public class JWTVerifierFactory {
-    private final JWTKeyset jwtKeyset;
+    private final RSAKeyProviderFactory keyProviderFactory;
 
     private final JWTConfig jwtConfig;
 
-    private static IllegalStateException map(Throwable cause) {
-        return new IllegalStateException(cause);
+    public JWTVerifierFactory(JWTKeyset jwtKeyset, JWTConfig jwtConfig) {
+        this.keyProviderFactory = new RSAKeyProviderFactory(jwtKeyset);
+        this.jwtConfig = jwtConfig;
     }
 
     public JWTVerifier create() {
-        final RSAKeyProvider rsaKeyProvider = new RSAKeyProvider() {
-            @Override
-            public RSAPublicKey getPublicKeyById(String keyId) {
-                return jwtKeyset
-                    .getKeysetForId(keyId)
-                    .mapTry(Jwk::getPublicKey)
-                    .map(Key::getEncoded)
-                    .mapTry(JWTVerifierFactory::createKey)
-                    .onFailure(e -> log.error("Error getting public key for id " + keyId, e))
-                    .getOrElseThrow(JWTVerifierFactory::map);
-            }
-
-            @Override
-            public RSAPrivateKey getPrivateKey() {
-                return null;
-            }
-
-            @Override
-            public String getPrivateKeyId() {
-                return null;
-            }
-        };
-
-        val verification = JWTVerifier.init(rsaKeyProvider);
+        val verification = JWTVerifier.init(keyProviderFactory.create());
 
         final int tokenLeeway = jwtConfig.getTokenLeeway();
         verification.acceptLeeway(tokenLeeway);
@@ -79,10 +44,5 @@ public class JWTVerifierFactory {
         }
 
         return verification.build();
-    }
-
-    private static RSAPublicKey createKey(byte[] bytes ) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(
-                new X509EncodedKeySpec(bytes));
     }
 }
