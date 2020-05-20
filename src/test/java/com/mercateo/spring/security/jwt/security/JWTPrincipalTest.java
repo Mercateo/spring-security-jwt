@@ -17,6 +17,8 @@ package com.mercateo.spring.security.jwt.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Collections;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,7 +40,7 @@ public class JWTPrincipalTest {
                 .value("<foo_bar>")
                 .issuer("<issuer>")
                 .build()).toJavaMap();
-        uut = new JWTPrincipal(123L, "<username>", "<token>", List.empty(), claimsStringMap);
+        uut = new JWTPrincipal(123L, "<username>", "<token>", Collections.emptyList(), claimsStringMap);
     }
 
     @Test
