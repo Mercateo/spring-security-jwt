@@ -101,10 +101,12 @@ Integrates in [Spring Security](https://spring.io/projects/spring-security).
 
 ## Changelog:
 
+2.1.1:
+* removed public reference about vavr
 
 2.1.0:
 * refactored packaging
-* token handling improvenets
+* token handling improvements
 
 2.0.1:
 * breaking change to the previous versions 1.x.y
