@@ -18,6 +18,7 @@ package com.mercateo.spring.security.jwt.security;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -28,8 +29,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mercateo.spring.security.jwt.data.ClaimName;
 import com.mercateo.spring.security.jwt.token.claim.JWTClaim;
-
-import io.vavr.collection.List;
 
 public class JWTPrincipal implements UserDetails {
 
@@ -97,7 +96,7 @@ public class JWTPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities.asJava();
+        return authorities;
     }
 
     @Override

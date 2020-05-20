@@ -15,7 +15,8 @@
  */
 package com.mercateo.spring.security.jwt.security;
 
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
@@ -30,7 +31,6 @@ import com.mercateo.spring.security.jwt.token.exception.InvalidTokenException;
 import com.mercateo.spring.security.jwt.token.exception.TokenException;
 import com.mercateo.spring.security.jwt.token.extractor.ValidatingHierarchicalClaimsExtractor;
 
-import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -84,10 +84,9 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
     protected List<? extends GrantedAuthority> retrieveAuthorities(JWTClaims claims) {
         val scopes = extractScopes(claims);
         val roles = extractRoles(claims);
-        return List //
-                .ofAll(scopes)
-                .appendAll(roles)
-                .map(value -> JWTAuthority.builder().authority(value).build());
+        val all = new ArrayList<>(scopes);
+        all.addAll(roles);
+        return all.stream().map(value -> JWTAuthority.builder().authority(value).build()).collect(Collectors.toList());
     }
 
     private List<String> extractScopes(JWTClaims claims) {
@@ -97,8 +96,8 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
                 .map(JWTClaim::value)
                 .filter(Objects::nonNull)
                 .map(value -> ((String) value).split("\\s+"))
-                .map(List::of)
-                .getOrElse(List.empty());
+                .map(Arrays::asList)
+                .getOrElse(Collections.EMPTY_LIST);
     }
 
     private List<String> extractRoles(JWTClaims claims) {
@@ -108,10 +107,10 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
                 .map(JWTClaim::value)
                 .filter(Objects::nonNull)
                 .map(container -> (Object[]) container)
-                .map(List::of)
+                .map(Arrays::asList)
                 .map(list -> list //
-                        .map(element -> "ROLE_" + element)
-                        .map(String::toUpperCase))
-                .getOrElse(List.empty());
+                        .stream().map(element -> "ROLE_" + element)
+                        .map(String::toUpperCase).collect(Collectors.toList()))
+                .getOrElse(Collections.EMPTY_LIST);
     }
 }
