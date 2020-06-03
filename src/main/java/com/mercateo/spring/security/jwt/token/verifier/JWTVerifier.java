@@ -36,7 +36,6 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.Clock;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.RSAKeyProvider;
-import com.google.common.annotations.VisibleForTesting;
 
 import lombok.val;
 
@@ -47,11 +46,11 @@ import lombok.val;
 @SuppressWarnings("WeakerAccess")
 public final class JWTVerifier {
     private final Map<String, Object> claims;
-    private final RSAKeyProvider rsaKeyProvider;
+    private final AlgorithmFactory algorithmFactory;
     private final Clock clock;
 
-	JWTVerifier(RSAKeyProvider rsaKeyProvider, Map<String, Object> claims, Clock clock) {
-		this.rsaKeyProvider = rsaKeyProvider;
+	JWTVerifier(AlgorithmFactory algorithmFactory, Map<String, Object> claims, Clock clock) {
+		this.algorithmFactory = algorithmFactory;
 		this.claims = Collections.unmodifiableMap(claims);
 		this.clock = clock;
 	}
@@ -64,7 +63,7 @@ public final class JWTVerifier {
 	 * @throws IllegalArgumentException if the provided algorithm is null.
 	 */
 	public static BaseVerification init(RSAKeyProvider rsaKeyProvider) throws IllegalArgumentException {
-		return new BaseVerification(rsaKeyProvider);
+		return new BaseVerification(new AlgorithmFactory(rsaKeyProvider));
 	}
 
     /**
@@ -86,25 +85,11 @@ public final class JWTVerifier {
      */
     public DecodedJWT verify(String token) throws JWTVerificationException {
         DecodedJWT jwt = JWT.decode(token);
-        Algorithm algorithm = getAlgorithm(jwt);
+        Algorithm algorithm = algorithmFactory.createByName(jwt.getAlgorithm());
         algorithm.verify(jwt);
         verifyClaims(jwt, claims);
         return jwt;
     }
-    @VisibleForTesting
-	Algorithm getAlgorithm(DecodedJWT jwt) throws AlgorithmMismatchException {
-		switch (jwt.getAlgorithm().toLowerCase()) {
-		case "rs256":
-			return Algorithm.RSA256(rsaKeyProvider);
-		case "rs384":
-			return Algorithm.RSA384(rsaKeyProvider);
-		case "rs512":
-			return Algorithm.RSA512(rsaKeyProvider);
-		default:
-			throw new AlgorithmMismatchException(
-					"The provided Algorithm has to be RSA.");
-		}
-	}
 
     private void verifyClaims(DecodedJWT jwt, Map<String, Object> claims) throws TokenExpiredException,
             InvalidClaimException {
@@ -199,18 +184,18 @@ public final class JWTVerifier {
 	 * The Verification class holds the Claims required by a JWT to be valid.
 	 */
 	public static class BaseVerification {
-		private final RSAKeyProvider rsaKeyProvider;
+		private final AlgorithmFactory algorithmFactory;
 
         private final Map<String, Object> claims;
 
         private long defaultLeeway;
 
-		BaseVerification(RSAKeyProvider rsaKeyProvider) throws IllegalArgumentException {
-			if (rsaKeyProvider == null) {
+		BaseVerification(AlgorithmFactory algorithmFactory) throws IllegalArgumentException {
+			if (algorithmFactory == null) {
 				throw new IllegalArgumentException("The rsaKeyprovider cannot be null.");
 			}
 
-			this.rsaKeyProvider = rsaKeyProvider;
+			this.algorithmFactory = algorithmFactory;
 			this.claims = new HashMap<>();
 			this.defaultLeeway = 0;
 		}
@@ -283,7 +268,7 @@ public final class JWTVerifier {
          */
         public JWTVerifier build(Clock clock) {
             addLeewayToDateClaims();
-            return new JWTVerifier(rsaKeyProvider, claims, clock);
+            return new JWTVerifier(algorithmFactory, claims, clock);
         }
 
         private void assertPositive(long leeway) {
