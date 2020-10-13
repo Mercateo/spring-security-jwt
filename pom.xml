@@ -85,7 +85,7 @@
         <vavr.version>0.10.0</vavr.version>
         <slf4j-api.version>1.7.25</slf4j-api.version>
         <!-- test -->
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <assertj-core.version>3.12.2</assertj-core.version>
         <mockito-core.version>2.27.0</mockito-core.version>
         <logback-classic.version>1.2.3</logback-classic.version>
