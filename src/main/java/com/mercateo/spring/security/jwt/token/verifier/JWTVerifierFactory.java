@@ -53,7 +53,7 @@ public class JWTVerifierFactory {
                     .mapTry(Jwk::getPublicKey)
                     .map(Key::getEncoded)
                     .mapTry(JWTVerifierFactory::createKey)
-                    .onFailure(e -> log.error("Error getting public key for id " + keyId, e))
+                    .onFailure(e -> log.warn("Error getting public key for id " + keyId, e))
                     .getOrElseThrow(JWTVerifierFactory::map);
             }
 
