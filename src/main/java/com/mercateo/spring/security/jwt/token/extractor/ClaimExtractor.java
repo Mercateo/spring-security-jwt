@@ -31,8 +31,11 @@ import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
+
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+@Slf4j
 class ClaimExtractor {
 
     private final Map<Class<?>, Function1<Object, Object>> accessors = HashMap.ofEntries( //
@@ -61,6 +64,9 @@ class ClaimExtractor {
 
     private Object extractNode(Object rawClaim) {
         val accessorOption = accessors.get(rawClaim.getClass());
+        if (accessorOption.isEmpty()) {
+            log.warn("Could not find accessor for type {}", rawClaim.getClass());
+        }
         return accessorOption.map(accessor -> accessor.apply(rawClaim)).getOrNull();
     }
 

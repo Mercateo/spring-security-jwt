@@ -28,8 +28,11 @@ import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
+
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+@Slf4j
 class HierarchicalClaimsExtractor {
 
     private final TokenProcessor tokenProcessor;
@@ -80,6 +83,7 @@ class HierarchicalClaimsExtractor {
             .toStream()
             .map(claimName -> Tuple.of(claimName, token.getClaim(claimName)))
             .filter(this::containsClaim)
+            .filter(this::claimExtractable)
             .map(result -> JWTClaim
                 .builder()
                 .name(result._1())
@@ -93,6 +97,14 @@ class HierarchicalClaimsExtractor {
 
     private boolean containsClaim(Tuple2<String, Claim> result) {
         return !result._2.isNull();
+    }
+
+    private boolean claimExtractable(Tuple2<String, Claim> tuple) {
+        final Object extract = claimExtractor.extract(tuple._2());
+        if (extract == null) {
+            log.warn("The claim extracts to null {}", tuple);
+        }
+        return extract != null;
     }
 
     private boolean verifyToken(DecodedJWT token) {
