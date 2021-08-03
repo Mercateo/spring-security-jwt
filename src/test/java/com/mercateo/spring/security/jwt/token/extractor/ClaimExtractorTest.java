@@ -48,6 +48,7 @@ public class ClaimExtractorTest {
             .withClaim("double", 3.1415)
             .withClaim("bool", true)
             .withClaim("string", "text")
+            .withClaim("long", Long.MAX_VALUE)
             .withArrayClaim("stringArray", new String[] { "foo", "bar", "baz" });
 
         final Method addClaim = JWTCreator.Builder.class.getDeclaredMethod("addClaim", String.class, Object.class);
@@ -73,6 +74,13 @@ public class ClaimExtractorTest {
         val result = uut.extract(jwt.getClaim("int"));
 
         assertThat(result).isEqualTo(123);
+    }
+
+    @Test
+    public void extractsLong() {
+        val result = uut.extract(jwt.getClaim("long"));
+
+        assertThat(result).isEqualTo(Long.MAX_VALUE);
     }
 
     @Test
