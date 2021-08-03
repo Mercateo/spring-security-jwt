@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.LongNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
@@ -41,6 +42,7 @@ class ClaimExtractor {
     private final Map<Class<?>, Function1<Object, Object>> accessors = HashMap.ofEntries( //
             Tuple.of(TextNode.class, (node) -> ((TextNode) node).asText()), //
             Tuple.of(IntNode.class, (node) -> ((IntNode) node).asInt()), //
+            Tuple.of(LongNode.class, (node) -> ((LongNode) node).asLong()), //
             Tuple.of(DoubleNode.class, (node) -> ((DoubleNode) node).asDouble()), //
             Tuple.of(BooleanNode.class, (node) -> ((BooleanNode) node).asBoolean()), //
             Tuple.of(ArrayNode.class, (node) -> extractArray((ArrayNode) node)), //
