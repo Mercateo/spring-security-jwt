@@ -81,7 +81,7 @@
         <default-immutables.version>1.2.5</default-immutables.version>
         <java-jwt.version>3.8.0</java-jwt.version>
         <jwks-rsa.version>0.8.1</jwks-rsa.version>
-        <bcprov-jdk15on.version>1.61</bcprov-jdk15on.version>
+        <bcprov-jdk15on.version>1.67</bcprov-jdk15on.version>
         <vavr.version>0.10.0</vavr.version>
         <slf4j-api.version>1.7.25</slf4j-api.version>
         <!-- test -->
